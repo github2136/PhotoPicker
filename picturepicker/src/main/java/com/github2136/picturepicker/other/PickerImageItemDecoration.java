@@ -1,22 +1,12 @@
 package com.github2136.picturepicker.other;
 
-import android.annotation.SuppressLint;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
-import android.support.v4.content.ContentResolverCompat;
-import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 
 /**
- * Created by yubin on 2017/9/7.
+ * Created by yb on 2017/9/7.
  */
 
 public class PickerImageItemDecoration extends RecyclerView.ItemDecoration {

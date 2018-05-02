@@ -9,7 +9,7 @@ import com.github2136.picturepicker.fragment.PhotoFragment;
 import java.util.List;
 
 /**
- * Created by yubin on 2017/9/20.
+ * Created by yb on 2017/9/20.
  */
 
 public class PhotoAdapter extends FragmentStatePagerAdapter {

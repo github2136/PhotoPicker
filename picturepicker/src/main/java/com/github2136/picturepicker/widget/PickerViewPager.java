@@ -8,7 +8,7 @@ import android.view.MotionEvent;
 import com.github2136.picturepicker.R;
 
 /**
- * Created by yubin on 2017/9/20.
+ * Created by yb on 2017/9/20.
  */
 
 public class PickerViewPager extends ViewPager {

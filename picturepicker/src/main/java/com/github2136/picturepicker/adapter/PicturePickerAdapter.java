@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by yubin on 2017/8/26.
+ * Created by yb on 2017/8/26.
  */
 
 public class PicturePickerAdapter extends BaseRecyclerAdapter<PicturePicker> {

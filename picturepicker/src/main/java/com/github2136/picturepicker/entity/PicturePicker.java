@@ -4,7 +4,7 @@ import android.content.ContentResolver;
 import android.net.Uri;
 
 /**
- * Created by yubin on 2017/8/26.
+ * Created by yb on 2017/8/26.
  */
 
 public class PicturePicker {
