@@ -1,5 +1,5 @@
 图片选择器  
-[![](https://jitpack.io/v/github2136/SelectImage.svg)](https://jitpack.io/#github2136/SelectImage)  
+[![](https://jitpack.io/v/github2136/PicturePicker.svg)](https://jitpack.io/#github2136/PicturePicker)
 使用该库还需要引用以下库  
 Android-utils [![](https://jitpack.io/v/github2136/Android-utils.svg)](https://jitpack.io/#github2136/Android-utils)  
 **compile 'com.google.code.gson:gson:2.8.2'**  
