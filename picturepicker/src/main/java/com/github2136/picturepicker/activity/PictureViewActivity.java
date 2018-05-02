@@ -23,13 +23,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 查看图片
+ * 查看图片<br>
+ * ARG_PICTURES显示图片路径<br>
+ * ARG_CURRENT_INDEX显示的图片下标<br>
+ * ARG_PICKER_PATHS已选中图片路径<br>
+ * ARG_PICKER_COUNT可选图片数量<br>
+ * 如果ARG_PICKER_PATHS不为空则会在下方显示单选框选择图片<br>
+ * 返回路径的key为ARG_PICKER_PATHS
  */
 public class PictureViewActivity extends AppCompatActivity implements PhotoFragment.OnFragmentInteractionListener {
-    public static final String ARG_PICTURES = "PICTURES";
-    public static final String ARG_CURRENT_INDEX = "CURRENT_INDEX";
-    public static final String ARG_PICKER_COUNT = "PICKER_COUNT";//所选图片数量
+    public static final String ARG_PICTURES = "PICTURES";//显示图片路径
+    public static final String ARG_CURRENT_INDEX = "CURRENT_INDEX";//显示的图片下标
     public static final String ARG_PICKER_PATHS = "PICKER_PATHS";//所选图片路径
+    public static final String ARG_PICKER_COUNT = "PICKER_COUNT";//所选图片数量
     private List<String> mPhotoPaths;
     private ArrayList<String> mPickerPaths;
     private int mPickerCount;
@@ -91,12 +97,14 @@ public class PictureViewActivity extends AppCompatActivity implements PhotoFragm
     }
 
     private void setBottom() {
-        if (mPickerPaths.contains(mPhotoPaths.get(vpPhoto.getCurrentItem()))) {
-            ibCheck.setImageResource(R.drawable.ic_select_checkbox_check);
-        } else {
-            ibCheck.setImageResource(R.drawable.ic_select_checkbox_uncheck);
+        if (mPickerPaths != null) {
+            if (mPickerPaths.contains(mPhotoPaths.get(vpPhoto.getCurrentItem()))) {
+                ibCheck.setImageResource(R.drawable.ic_select_checkbox_check);
+            } else {
+                ibCheck.setImageResource(R.drawable.ic_select_checkbox_uncheck);
+            }
+            tvTitle.setText(String.format("%d/%d", mPickerPaths.size(), mPickerCount));
         }
-        tvTitle.setText(String.format("%d/%d", mPickerPaths.size(), mPickerCount));
     }
 
     ViewPager.SimpleOnPageChangeListener mPagerChangeListener = new ViewPager.SimpleOnPageChangeListener() {
@@ -147,8 +155,10 @@ public class PictureViewActivity extends AppCompatActivity implements PhotoFragm
     }
 
     private void setPickerPath() {
-        Intent intent = new Intent();
-        intent.putStringArrayListExtra(ARG_PICKER_PATHS, mPickerPaths);
-        setResult(RESULT_OK, intent);
+        if (mPickerPaths != null) {
+            Intent intent = new Intent();
+            intent.putStringArrayListExtra(ARG_PICKER_PATHS, mPickerPaths);
+            setResult(RESULT_OK, intent);
+        }
     }
 }

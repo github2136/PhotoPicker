@@ -24,7 +24,7 @@
             android:background="#5c000000"
             android:gravity="center"
             android:orientation="horizontal"
-            >
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/tv_title"

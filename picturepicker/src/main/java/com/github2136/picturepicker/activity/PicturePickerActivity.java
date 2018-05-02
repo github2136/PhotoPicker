@@ -35,8 +35,8 @@ import java.util.Set;
 
 /**
  * 选择图片<br>
- * ARG_SELECT_COUNT选择图片数量<br>
- * ARG_PICKER_COUNT返回的图片路径
+ * ARG_PICKER_COUNT选择图片数量<br>
+ * ARG_RESULT返回的图片路径
  */
 public class PicturePickerActivity extends AppCompatActivity {
     private static final int REQUEST_PICTURE_VIEW = 434;

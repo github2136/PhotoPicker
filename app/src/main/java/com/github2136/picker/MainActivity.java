@@ -10,6 +10,7 @@ import android.widget.Button;
 import com.github2136.picturepicker.activity.CaptureActivity;
 import com.github2136.picturepicker.activity.CropActivity;
 import com.github2136.picturepicker.activity.PicturePickerActivity;
+import com.github2136.picturepicker.activity.PictureViewActivity;
 
 import java.util.ArrayList;
 
@@ -34,6 +35,20 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
                 intent.putExtra(CaptureActivity.ARG_FILE_PATH, "fffff");
+                startActivityForResult(intent, 2);
+            }
+        });
+        Button btnPreview = (Button) findViewById(R.id.im_preview);
+        btnPreview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, PictureViewActivity.class);
+                ArrayList<String> path = new ArrayList<>();
+                path.add("/storage/emulated/legacy/Pictures/FireServices/image_20171221_160400.jpg");
+                path.add("/storage/emulated/legacy/Pictures/FireServices/image_20171221_160831.jpg");
+                path.add("/storage/emulated/legacy/com.kuntu.mobile.fireservices.unit/20171221_160733320.jpg");
+
+                intent.putStringArrayListExtra(PictureViewActivity.ARG_PICTURES, path);
                 startActivityForResult(intent, 2);
             }
         });

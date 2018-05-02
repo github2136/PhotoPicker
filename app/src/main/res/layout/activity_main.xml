@@ -13,9 +13,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="选择图片"/>
+
     <Button
         android:id="@+id/im_capture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="拍图片"/>
+
+    <Button
+        android:id="@+id/im_preview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="查看图片"/>
 </LinearLayout>
