@@ -8,5 +8,5 @@ import com.github2136.picturepicker.R;
  * Created by yb on 2017/11/22.
  */
 @GlideModule
-public class SelectAppGlideModule extends AppGlideModule {
+public class PickerAppGlideModule extends AppGlideModule {
 }

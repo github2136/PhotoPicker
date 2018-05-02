@@ -19,13 +19,13 @@ import android.view.View;
  * Created by yubin on 2017/9/7.
  */
 
-public class SelectImageItemDecoration extends RecyclerView.ItemDecoration {
+public class PickerImageItemDecoration extends RecyclerView.ItemDecoration {
 
     private int mSpanCount;
     private int mSpacing;
     private boolean mIncludeEdge;
 
-    public SelectImageItemDecoration(int spanCount, int spacing, boolean includeEdge) {
+    public PickerImageItemDecoration(int spanCount, int spacing, boolean includeEdge) {
         this.mSpanCount = spanCount;
         this.mSpacing = spacing;
         this.mIncludeEdge = includeEdge;

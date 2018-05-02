@@ -72,8 +72,8 @@ public class PhotoFragment extends Fragment {
         GlideApp.with(getContext())
                 .load(photoPath)
                 .diskCacheStrategy(DiskCacheStrategy.ALL.ALL)
-                .placeholder(R.drawable.img_select_place)
-                .error(R.drawable.img_select_fail)
+                .placeholder(R.drawable.img_picker_place)
+                .error(R.drawable.img_picker_fail)
                 .into(ivPhoto);
         ivPhoto.setOnClickListener(mOnClickListener);
     }

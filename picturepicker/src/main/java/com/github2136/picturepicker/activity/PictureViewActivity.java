@@ -12,12 +12,11 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewAnimator;
 
 import com.github2136.picturepicker.R;
 import com.github2136.picturepicker.adapter.PhotoAdapter;
 import com.github2136.picturepicker.fragment.PhotoFragment;
-import com.github2136.picturepicker.widget.SelectViewPager;
+import com.github2136.picturepicker.widget.PickerViewPager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +39,7 @@ public class PictureViewActivity extends AppCompatActivity implements PhotoFragm
     private ArrayList<String> mPickerPaths;
     private int mPickerCount;
     private int mCurrentIndex;
-    private SelectViewPager vpPhoto;
+    private PickerViewPager vpPhoto;
     private TextView tvTitle;
     private ImageButton ibCheck;
     private LinearLayout llCheck;
@@ -59,7 +58,7 @@ public class PictureViewActivity extends AppCompatActivity implements PhotoFragm
         setSupportActionBar(tbTitle);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        vpPhoto = (SelectViewPager) findViewById(R.id.vp_photo);
+        vpPhoto = (PickerViewPager) findViewById(R.id.vp_photo);
         vpPhoto.setAdapter(new PhotoAdapter(getSupportFragmentManager(), mPhotoPaths));
         vpPhoto.setCurrentItem(mCurrentIndex);
         vpPhoto.addOnPageChangeListener(mPagerChangeListener);
@@ -99,9 +98,9 @@ public class PictureViewActivity extends AppCompatActivity implements PhotoFragm
     private void setBottom() {
         if (mPickerPaths != null) {
             if (mPickerPaths.contains(mPhotoPaths.get(vpPhoto.getCurrentItem()))) {
-                ibCheck.setImageResource(R.drawable.ic_select_checkbox_check);
+                ibCheck.setImageResource(R.drawable.ic_picker_checkbox_check);
             } else {
-                ibCheck.setImageResource(R.drawable.ic_select_checkbox_uncheck);
+                ibCheck.setImageResource(R.drawable.ic_picker_checkbox_uncheck);
             }
             tvTitle.setText(String.format("%d/%d", mPickerPaths.size(), mPickerCount));
         }

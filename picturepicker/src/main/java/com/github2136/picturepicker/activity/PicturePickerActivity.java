@@ -22,7 +22,7 @@ import com.github2136.picturepicker.R;
 import com.github2136.picturepicker.adapter.PicturePickerAdapter;
 import com.github2136.picturepicker.adapter.SpinnerAdapter;
 import com.github2136.picturepicker.entity.PicturePicker;
-import com.github2136.picturepicker.other.SelectImageItemDecoration;
+import com.github2136.picturepicker.other.PickerImageItemDecoration;
 import com.github2136.util.CollectionsUtil;
 import com.github2136.util.FileUtil;
 
@@ -55,7 +55,7 @@ public class PicturePickerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_util_select_image);
+        setContentView(R.layout.activity_picture_picker);
         Toolbar tbTitle = (Toolbar) findViewById(R.id.tb_title);
         btnFolder = (Button) findViewById(R.id.btn_folder);
         btnPreview = (Button) findViewById(R.id.btn_preview);
@@ -95,7 +95,7 @@ public class PicturePickerActivity extends AppCompatActivity {
 
         RecyclerView rvImages = (RecyclerView) findViewById(R.id.rv_images);
         rvImages.setHasFixedSize(true);
-        SelectImageItemDecoration selectImageItemDecoration = new SelectImageItemDecoration(3, 5, true);
+        PickerImageItemDecoration selectImageItemDecoration = new PickerImageItemDecoration(3, 5, true);
         rvImages.addItemDecoration(selectImageItemDecoration);
 
         mFolderName = new ArrayList<>();

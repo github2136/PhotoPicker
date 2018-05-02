@@ -52,7 +52,7 @@ public class PicturePickerAdapter extends BaseRecyclerAdapter<PicturePicker> {
 
     @Override
     public int getLayoutId(int viewType) {
-        return R.layout.item_util_select_image;
+        return R.layout.item_picture_picker;
     }
 
     @Override
@@ -65,12 +65,12 @@ public class PicturePickerAdapter extends BaseRecyclerAdapter<PicturePicker> {
                 .override(mImgSize, mImgSize)
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .error(R.drawable.img_select_fail)
+                .error(R.drawable.img_picker_fail)
                 .into(ivImage);
         if (mPickerPaths.contains(picturePicker.getData())) {
-            ibCheck.setImageResource(R.drawable.ic_select_checkbox_check);
+            ibCheck.setImageResource(R.drawable.ic_picker_checkbox_check);
         } else {
-            ibCheck.setImageResource(R.drawable.ic_select_checkbox_uncheck);
+            ibCheck.setImageResource(R.drawable.ic_picker_checkbox_uncheck);
         }
         ibCheck.setOnClickListener(new View.OnClickListener() {
             @Override

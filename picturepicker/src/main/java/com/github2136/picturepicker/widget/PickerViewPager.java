@@ -11,13 +11,13 @@ import com.github2136.picturepicker.R;
  * Created by yubin on 2017/9/20.
  */
 
-public class SelectViewPager extends ViewPager {
+public class PickerViewPager extends ViewPager {
 
-    public SelectViewPager(Context context) {
+    public PickerViewPager(Context context) {
         super(context);
     }
 
-    public SelectViewPager(Context context, AttributeSet attrs) {
+    public PickerViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 

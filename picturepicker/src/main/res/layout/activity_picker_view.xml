@@ -5,13 +5,13 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <include layout="@layout/view_select_title"/>
+    <include layout="@layout/view_picker_title"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.github2136.picturepicker.widget.SelectViewPager
+        <com.github2136.picturepicker.widget.PickerViewPager
             android:id="@+id/vp_photo"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
@@ -42,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:padding="16dp"
-                android:src="@drawable/ic_select_checkbox_uncheck"/>
+                android:src="@drawable/ic_picker_checkbox_uncheck"/>
         </LinearLayout>
     </RelativeLayout>
 </LinearLayout>

@@ -6,7 +6,7 @@
         <item name="actionBarSize">56dp</item>
     </style>
 
-    <style name="AppTheme.SelectTheme">
+    <style name="AppTheme.PickerTheme">
         <item name="windowNoTitle">true</item>
     </style>
 

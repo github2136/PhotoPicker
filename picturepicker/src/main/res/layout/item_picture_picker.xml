@@ -21,5 +21,5 @@
         android:paddingLeft="16dp"
         android:paddingRight="4dp"
         android:paddingTop="4dp"
-        android:src="@drawable/ic_select_checkbox_uncheck"/>
+        android:src="@drawable/ic_picker_checkbox_uncheck"/>
 </RelativeLayout>
