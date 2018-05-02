@@ -1,0 +1,19 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.github2136.picturepicker">
+
+    <application
+        >
+        <activity
+            android:name=".activity.PicturePickerActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.SelectTheme"/>
+        <activity
+            android:name=".activity.PictureViewActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.SelectTheme"/>
+        <activity android:name=".activity.CaptureActivity">
+        </activity>
+        <activity android:name=".activity.CropActivity">
+        </activity>
+    </application>
+</manifest>

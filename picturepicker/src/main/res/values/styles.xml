@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="actionBarSize">56dp</item>
+    </style>
+
+    <style name="AppTheme.SelectTheme">
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="ToolBar.Theme" parent="@style/ThemeOverlay.AppCompat.Dark">
+    </style>
+
+    <style name="ToolBar.PopTheme" parent="@style/ThemeOverlay.AppCompat.Light">
+    </style>
+</resources>
