@@ -58,7 +58,10 @@ public class PicturePickerAdapter extends BaseRecyclerAdapter<PicturePicker> {
     @Override
     protected void onBindView(final PicturePicker picturePicker, ViewHolderRecyclerView holder, final int position) {
         ImageView ivImage = holder.getView(R.id.iv_image);
-        ImageButton ibCheck = holder.getView(R.id.ib_check);
+        final ImageButton ibCheck = holder.getView(R.id.ib_check);
+        if (mSelectCount == 1) {
+            ibCheck.setVisibility(View.GONE);
+        }
         ivImage.setLayoutParams(layoutParams);
         GlideApp.with(mContext)
                 .load(picturePicker.getData())
@@ -77,14 +80,15 @@ public class PicturePickerAdapter extends BaseRecyclerAdapter<PicturePicker> {
             public void onClick(View v) {
                 if (mPickerPaths.contains(picturePicker.getData())) {
                     mPickerPaths.remove(picturePicker.getData());
+                    ibCheck.setImageResource(R.drawable.ic_picker_checkbox_uncheck);
                 } else {
                     if (mSelectCount > mPickerPaths.size()) {
                         mPickerPaths.add(picturePicker.getData());
+                        ibCheck.setImageResource(R.drawable.ic_picker_checkbox_check);
                     } else {
                         Toast.makeText(mContext, "最多选择 " + mSelectCount + " 张", Toast.LENGTH_SHORT).show();
                     }
                 }
-                notifyItemChanged(position);
                 if (mOnSelectChangeCallback != null) {
                     mOnSelectChangeCallback.selectChange(mPickerPaths.size());
                 }

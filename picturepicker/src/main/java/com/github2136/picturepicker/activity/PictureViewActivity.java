@@ -12,11 +12,13 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewAnimator;
 
 import com.github2136.picturepicker.R;
 import com.github2136.picturepicker.adapter.PhotoAdapter;
 import com.github2136.picturepicker.fragment.PhotoFragment;
 import com.github2136.picturepicker.widget.PickerViewPager;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,10 +33,10 @@ import java.util.List;
  * 返回路径的key为ARG_PICKER_PATHS
  */
 public class PictureViewActivity extends AppCompatActivity implements PhotoFragment.OnFragmentInteractionListener {
-    public static final String ARG_PICTURES = "PICTURES";//显示图片路径
-    public static final String ARG_CURRENT_INDEX = "CURRENT_INDEX";//显示的图片下标
-    public static final String ARG_PICKER_PATHS = "PICKER_PATHS";//所选图片路径
+    public static final String ARG_PICTURES = "PICTURES";
+    public static final String ARG_CURRENT_INDEX = "CURRENT_INDEX";
     public static final String ARG_PICKER_COUNT = "PICKER_COUNT";//所选图片数量
+    public static final String ARG_PICKER_PATHS = "PICKER_PATHS";//所选图片路径
     private List<String> mPhotoPaths;
     private ArrayList<String> mPickerPaths;
     private int mPickerCount;
@@ -96,14 +98,12 @@ public class PictureViewActivity extends AppCompatActivity implements PhotoFragm
     }
 
     private void setBottom() {
-        if (mPickerPaths != null) {
-            if (mPickerPaths.contains(mPhotoPaths.get(vpPhoto.getCurrentItem()))) {
-                ibCheck.setImageResource(R.drawable.ic_picker_checkbox_check);
-            } else {
-                ibCheck.setImageResource(R.drawable.ic_picker_checkbox_uncheck);
-            }
-            tvTitle.setText(String.format("%d/%d", mPickerPaths.size(), mPickerCount));
+        if (mPickerPaths.contains(mPhotoPaths.get(vpPhoto.getCurrentItem()))) {
+            ibCheck.setImageResource(R.drawable.ic_picker_checkbox_check);
+        } else {
+            ibCheck.setImageResource(R.drawable.ic_picker_checkbox_uncheck);
         }
+        tvTitle.setText(String.format("%d/%d", mPickerPaths.size(), mPickerCount));
     }
 
     ViewPager.SimpleOnPageChangeListener mPagerChangeListener = new ViewPager.SimpleOnPageChangeListener() {

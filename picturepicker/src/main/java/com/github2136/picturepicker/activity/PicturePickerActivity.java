@@ -63,12 +63,19 @@ public class PicturePickerActivity extends AppCompatActivity {
         btnPreview.setOnClickListener(mOnClickListener);
         setSupportActionBar(tbTitle);
         mPickerCount = getIntent().getIntExtra(ARG_PICKER_COUNT, 0);
+        if (mPickerCount < 1) {
+            Toast.makeText(this, "可选图片数量至少为1", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
         mSelectFolderName = "*";
         setToolbarTitle(0, mSelectFolderName);
         mMimeType.add("image/jpeg");
         mMimeType.add("image/png");
         mMimeType.add("image/gif");
-
+        if (mPickerCount == 1) {
+            btnPreview.setVisibility(View.GONE);
+        }
         // getSupportActionBar().setToolbarTitle("标题");
         // getSupportActionBar().setSubtitle("副标题");
         // getSupportActionBar().setLogo(R.drawable.ic_launcher);
@@ -108,18 +115,29 @@ public class PicturePickerActivity extends AppCompatActivity {
         mPicturePickerAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter baseRecyclerAdapter, int i) {
-                Intent intent = new Intent(PicturePickerActivity.this, PictureViewActivity.class);
-                ArrayList<String> path = new ArrayList<>();
-                for (PicturePicker img : mPicturePickerAdapter.getItem()) {
-                    path.add(img.getData());
+                if (mPickerCount == 1) {
+                    ArrayList<String> imgs = new ArrayList<>();
+                    imgs.add(mPicturePickerAdapter.getItem(i).getData());
+                    Intent intent = new Intent();
+                    intent.putStringArrayListExtra(ARG_RESULT, imgs);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                } else {
+                    Intent intent = new Intent(PicturePickerActivity.this, PictureViewActivity.class);
+                    ArrayList<String> path = new ArrayList<>();
+                    for (PicturePicker img : mPicturePickerAdapter.getItem()) {
+                        path.add(img.getData());
+                    }
+                    intent.putStringArrayListExtra(PictureViewActivity.ARG_PICTURES, path);
+                    intent.putExtra(PictureViewActivity.ARG_CURRENT_INDEX, i);
+
+                    intent.putStringArrayListExtra(PictureViewActivity.ARG_PICKER_PATHS, mPicturePickerAdapter.getPickerPaths());
+                    intent.putExtra(PictureViewActivity.ARG_PICKER_COUNT, mPickerCount);
+
+                    startActivityForResult(intent, REQUEST_PICTURE_VIEW);
                 }
-                intent.putStringArrayListExtra(PictureViewActivity.ARG_PICTURES, path);
-                intent.putExtra(PictureViewActivity.ARG_CURRENT_INDEX, i);
 
-                intent.putStringArrayListExtra(PictureViewActivity.ARG_PICKER_PATHS, mPicturePickerAdapter.getPickerPaths());
-                intent.putExtra(PictureViewActivity.ARG_PICKER_COUNT, mPickerCount);
 
-                startActivityForResult(intent, REQUEST_PICTURE_VIEW);
             }
         });
         mPicturePickerAdapter.setOnSelectImageCallback(new PicturePickerAdapter.OnSelectChangeCallback() {
@@ -166,7 +184,11 @@ public class PicturePickerActivity extends AppCompatActivity {
         if (folderName.equals("*")) {
             folderName = "全部";
         }
-        setTitle(String.format("%d/%d", selectCount, mPickerCount));//标题
+        if (mPickerCount != 1) {
+            setTitle(String.format("%d/%d", selectCount, mPickerCount));//标题
+        } else {
+            setTitle("图片选择");//标题
+        }
         btnFolder.setText(folderName);
         if (selectCount > 0) {
             btnPreview.setEnabled(true);

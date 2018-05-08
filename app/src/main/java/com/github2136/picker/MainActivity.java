@@ -25,6 +25,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, PicturePickerActivity.class);
+                intent.putExtra(PicturePickerActivity.ARG_PICKER_COUNT, 1);
+                startActivityForResult(intent, 1);
+            }
+        });
+        Button btnImgs = (Button) findViewById(R.id.im_select_imgs);
+        btnImgs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, PicturePickerActivity.class);
                 intent.putExtra(PicturePickerActivity.ARG_PICKER_COUNT, 5);
                 startActivityForResult(intent, 1);
             }
