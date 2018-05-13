@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Picker.AppTheme.PickerTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="windowNoTitle">true</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="actionBarSize">56dp</item>
     </style>
 
-    <style name="AppTheme.PickerTheme">
-        <item name="windowNoTitle">true</item>
+    <style name="Picker.ToolBar.Theme" parent="@style/ThemeOverlay.AppCompat.Dark">
     </style>
 
-    <style name="ToolBar.Theme" parent="@style/ThemeOverlay.AppCompat.Dark">
-    </style>
-
-    <style name="ToolBar.PopTheme" parent="@style/ThemeOverlay.AppCompat.Light">
+    <style name="Picker.ToolBar.PopTheme" parent="@style/ThemeOverlay.AppCompat.Light">
     </style>
 </resources>

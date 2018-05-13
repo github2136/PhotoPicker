@@ -27,4 +27,4 @@
     android:paddingRight="16dp"
     android:textAppearance="?android:attr/textAppearanceListItemSmall"
     android:textColor="?android:textColorPrimary"
-    app:theme="@style/ToolBar.PopTheme"/>
+    app:theme="@style/Picker.ToolBar.PopTheme"/>
