@@ -20,7 +20,6 @@ import android.widget.Toast;
 import com.github2136.base.BaseRecyclerAdapter;
 import com.github2136.picturepicker.R;
 import com.github2136.picturepicker.adapter.PicturePickerAdapter;
-import com.github2136.picturepicker.adapter.SpinnerAdapter;
 import com.github2136.picturepicker.entity.PicturePicker;
 import com.github2136.picturepicker.other.PickerImageItemDecoration;
 import com.github2136.util.CollectionsUtil;
@@ -146,19 +145,24 @@ public class PicturePickerActivity extends AppCompatActivity {
                 setToolbarTitle(selectCount, mSelectFolderName);
             }
         });
-        SpinnerAdapter adapter = new SpinnerAdapter(this, R.layout.item_spinner, mFolderName);
+        String[] fName = new String[mFolderName.size()];
+        mFolderName.toArray(fName);
+        fName[0] = "全部";
         mFolderDialog = new AlertDialog.Builder(this)
-                .setAdapter(adapter, new DialogInterface.OnClickListener() {
+                .setItems(fName, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mSelectFolderName = mFolderName.get(which);
+                        if (which == 0) {
+                            mSelectFolderName = "*";
+                        } else {
+                            mSelectFolderName = mFolderName.get(which);
+                        }
                         mPicturePickerAdapter.setData(mFolderPath.get(mSelectFolderName));
-//                        mPicturePickerAdapter.clearSelectPaths();
                         mPicturePickerAdapter.notifyDataSetChanged();
-//                        setToolbarTitle(0, mSelectFolderName);
                         setToolbarTitle(mPicturePickerAdapter.getPickerPaths().size(), mSelectFolderName);
                     }
-                }).create();
+                })
+                .create();
     }
 
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
@@ -300,7 +304,7 @@ public class PicturePickerActivity extends AppCompatActivity {
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.select_menu, menu);
+        getMenuInflater().inflate(R.menu.picker_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 

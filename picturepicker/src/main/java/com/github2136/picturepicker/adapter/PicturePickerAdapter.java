@@ -65,26 +65,27 @@ public class PicturePickerAdapter extends BaseRecyclerAdapter<PicturePicker> {
         ivImage.setLayoutParams(layoutParams);
         GlideApp.with(mContext)
                 .load(picturePicker.getData())
-                .override(mImgSize, mImgSize)
-                .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .override(mImgSize, mImgSize)
+                .placeholder(R.drawable.img_picker_place)
                 .error(R.drawable.img_picker_fail)
+                .centerCrop()
                 .into(ivImage);
         if (mPickerPaths.contains(picturePicker.getData())) {
-            ibCheck.setImageResource(R.drawable.ic_picker_checkbox_check);
+            ibCheck.setImageResource(R.drawable.ic_picker_check_box);
         } else {
-            ibCheck.setImageResource(R.drawable.ic_picker_checkbox_uncheck);
+            ibCheck.setImageResource(R.drawable.ic_picker_check_box_outline);
         }
         ibCheck.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mPickerPaths.contains(picturePicker.getData())) {
                     mPickerPaths.remove(picturePicker.getData());
-                    ibCheck.setImageResource(R.drawable.ic_picker_checkbox_uncheck);
+                    ibCheck.setImageResource(R.drawable.ic_picker_check_box_outline);
                 } else {
                     if (mSelectCount > mPickerPaths.size()) {
                         mPickerPaths.add(picturePicker.getData());
-                        ibCheck.setImageResource(R.drawable.ic_picker_checkbox_check);
+                        ibCheck.setImageResource(R.drawable.ic_picker_check_box);
                     } else {
                         Toast.makeText(mContext, "最多选择 " + mSelectCount + " 张", Toast.LENGTH_SHORT).show();
                     }

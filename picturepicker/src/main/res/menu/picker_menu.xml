@@ -3,12 +3,12 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/menu_ok"
-        android:icon="@drawable/menu_picker_ok"
+        android:icon="@drawable/menu_picker_check"
         android:title="确定"
         app:showAsAction="always"/>
     <item
         android:id="@+id/menu_system"
-        android:icon="@drawable/menu_picker_folder"
+        android:icon="@drawable/menu_picker_folder_open"
         android:title="文件选择"
         app:showAsAction="always"/>
 </menu>

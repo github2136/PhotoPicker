@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -24,7 +26,8 @@
             android:background="#5c000000"
             android:gravity="center"
             android:orientation="horizontal"
-            android:visibility="gone">
+            android:visibility="gone"
+            tools:visibility="visible">
 
             <TextView
                 android:id="@+id/tv_title"
@@ -32,9 +35,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="right"
-                android:text="10/10"
-                android:textColor="#FFFFFFFF"
-                android:textSize="18sp"/>
+                android:textColor="?bottomBarTextColor"
+                android:textSize="18sp"
+                tools:text="10/10"/>
 
             <ImageButton
                 android:id="@+id/ib_check"
@@ -42,7 +45,8 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:padding="16dp"
-                android:src="@drawable/ic_picker_checkbox_uncheck"/>
+                android:tint="@color/pickerAccent"
+                app:srcCompat="@drawable/ic_picker_check_box_outline"/>
         </LinearLayout>
     </RelativeLayout>
 </LinearLayout>

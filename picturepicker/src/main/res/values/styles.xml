@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Picker.AppTheme.PickerTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Picker.Theme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="windowNoTitle">true</item>
-        <item name="colorPrimary">@color/colorPrimary</item>
         <item name="actionBarSize">56dp</item>
+        <item name="toolbar">@style/Picker.ToolBar</item>
+        <item name="bottomBarTextColor">@color/pickerBottomTextColor</item>
     </style>
 
-    <style name="Picker.ToolBar.Theme" parent="@style/ThemeOverlay.AppCompat.Dark">
-    </style>
-
-    <style name="Picker.ToolBar.PopTheme" parent="@style/ThemeOverlay.AppCompat.Light">
+    <style name="Picker.ToolBar" parent="@style/ThemeOverlay.AppCompat.Dark">
+        <!--ToolBar背景颜色-->
+        <item name="colorPrimary">@color/pickerToolBarBg</item>
+        <!--状态栏颜色-->
+        <item name="colorPrimaryDark">@color/pickerToolBarDark</item>
+        <!--文字颜色-->
+        <item name="android:textColorPrimary">@color/pickerToolBarText</item>
+        <!--图标颜色-->
+        <item name="android:tint">@color/pickerToolBarText</item>
     </style>
 </resources>

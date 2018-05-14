@@ -5,7 +5,6 @@
     android:id="@+id/tb_title"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/colorPrimary"
-    android:minHeight="?attr/actionBarSize"
-    app:popupTheme="@style/Picker.ToolBar.PopTheme"
-    app:theme="@style/Picker.ToolBar.Theme"/>
+    android:background="?colorPrimary"
+    android:minHeight="?actionBarSize"
+    app:theme="?toolbar"/>

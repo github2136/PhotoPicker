@@ -99,9 +99,9 @@ public class PictureViewActivity extends AppCompatActivity implements PhotoFragm
 
     private void setBottom() {
         if (mPickerPaths.contains(mPhotoPaths.get(vpPhoto.getCurrentItem()))) {
-            ibCheck.setImageResource(R.drawable.ic_picker_checkbox_check);
+            ibCheck.setImageResource(R.drawable.ic_picker_check_box);
         } else {
-            ibCheck.setImageResource(R.drawable.ic_picker_checkbox_uncheck);
+            ibCheck.setImageResource(R.drawable.ic_picker_check_box_outline);
         }
         tvTitle.setText(String.format("%d/%d", mPickerPaths.size(), mPickerCount));
     }

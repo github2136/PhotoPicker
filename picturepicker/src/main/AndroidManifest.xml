@@ -6,11 +6,11 @@
         <activity
             android:name=".activity.PicturePickerActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Picker.AppTheme.PickerTheme"/>
+            android:theme="@style/Picker.Theme"/>
         <activity
             android:name=".activity.PictureViewActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Picker.AppTheme.PickerTheme"/>
+            android:theme="@style/Picker.Theme"/>
         <activity android:name=".activity.CaptureActivity">
         </activity>
         <activity android:name=".activity.CropActivity">
