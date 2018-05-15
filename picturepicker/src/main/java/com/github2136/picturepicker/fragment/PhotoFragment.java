@@ -70,7 +70,7 @@ public class PhotoFragment extends Fragment {
         ivPhoto = (PhotoView) view.findViewById(R.id.iv_photo);
 
         GlideApp.with(getContext())
-                .load(photoPath+"d")
+                .load(photoPath)
                 .diskCacheStrategy(DiskCacheStrategy.ALL.ALL)
                 .placeholder(R.drawable.img_picker_place)
                 .error(R.drawable.img_picker_fail)
