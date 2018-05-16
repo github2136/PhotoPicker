@@ -1,12 +1,13 @@
 图片选择器  
-[![](https://jitpack.io/v/github2136/PicturePicker.svg)](https://jitpack.io/#github2136/PicturePicker)
+[![](https://jitpack.io/v/github2136/PicturePicker.svg)](https://jitpack.io/#github2136/PicturePicker)  
 使用该库还需要引用以下库  
 Android-utils [![](https://jitpack.io/v/github2136/Android-utils.svg)](https://jitpack.io/#github2136/Android-utils)  
 **compile 'com.google.code.gson:gson:2.8.2'**  
-**compile 'com.github.bumptech.glide:glide:4.3.1'**  
-**annotationProcessor 'com.github.bumptech.glide:compiler:4.3.1'**  
 **compile 'com.github.chrisbanes:PhotoView:2.1.3'**  
-**添加glide时使用maven { url 'https://maven.google.com' }**  
+
+**自定义图片加载器**
+* 实现`com.github2136.picturepicker.other.ImageLoader`接口
+* 在AndroidManifest.xml中添加`meta-data`，value为`picker_image_loader`，name为实现`ImageLoader`接口类完整路径
   
 **PicturePickerActivity**选择图片  
 **ARG_RESULT**返回的结果  

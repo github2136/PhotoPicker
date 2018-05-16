@@ -7,12 +7,12 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.github2136.base.BaseRecyclerAdapter;
 import com.github2136.base.ViewHolderRecyclerView;
 import com.github2136.picturepicker.R;
 import com.github2136.picturepicker.entity.PicturePicker;
-import com.github2136.picturepicker.other.GlideApp;
+import com.github2136.picturepicker.other.ImageLoader;
+import com.github2136.picturepicker.other.ImageLoaderInstance;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,14 +63,12 @@ public class PicturePickerAdapter extends BaseRecyclerAdapter<PicturePicker> {
             ibCheck.setVisibility(View.GONE);
         }
         ivImage.setLayoutParams(layoutParams);
-        GlideApp.with(mContext)
-                .load(picturePicker.getData())
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .override(mImgSize, mImgSize)
-                .placeholder(R.drawable.img_picker_place)
-                .error(R.drawable.img_picker_fail)
-                .centerCrop()
-                .into(ivImage);
+        ImageLoader loader = ImageLoaderInstance.getInstance(mContext).getImageLoader();
+        if (loader.supportAnimatedGifThumbnail()) {
+            loader.loadThumbnail(mContext, mImgSize, mImgSize, ivImage, picturePicker.getData());
+        } else {
+            loader.loadAnimatedGifThumbnail(mContext, mImgSize, mImgSize, ivImage, picturePicker.getData());
+        }
         if (mPickerPaths.contains(picturePicker.getData())) {
             ibCheck.setImageResource(R.drawable.ic_picker_check_box);
         } else {

@@ -8,10 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.github2136.picturepicker.R;
-import com.github2136.picturepicker.other.GlideApp;
+import com.github2136.picturepicker.other.ImageLoader;
+import com.github2136.picturepicker.other.ImageLoaderInstance;
 
 public class PhotoFragment extends Fragment {
     public static final String ARG_PHOTO_PATH = "PHOTO_PATH";
@@ -68,13 +68,12 @@ public class PhotoFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         ivPhoto = (PhotoView) view.findViewById(R.id.iv_photo);
-
-        GlideApp.with(getContext())
-                .load(photoPath)
-                .diskCacheStrategy(DiskCacheStrategy.ALL.ALL)
-                .placeholder(R.drawable.img_picker_place)
-                .error(R.drawable.img_picker_fail)
-                .into(ivPhoto);
+        ImageLoader loader = ImageLoaderInstance.getInstance(getContext()).getImageLoader();
+        if (loader.supportAnimatedGif()) {
+            loader.loadImage(getContext(), ivPhoto, photoPath);
+        } else {
+            loader.loadAnimatedGifImage(getContext(), ivPhoto, photoPath);
+        }
         ivPhoto.setOnClickListener(mOnClickListener);
     }
 

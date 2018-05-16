@@ -29,8 +29,6 @@ dependencies {
     compile 'com.android.support:support-v4:25.4.0'
     provided 'com.google.code.gson:gson:2.8.2'
     provided 'com.github.github2136:Android-utils:0.1.2'
-    provided 'com.github.bumptech.glide:glide:4.3.1'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.3.1'
     provided 'com.github.chrisbanes:PhotoView:2.1.3'
 }
 
