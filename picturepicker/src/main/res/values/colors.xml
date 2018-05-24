@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="pickerToolBarBg">#2d20d6</color>
-    <color name="pickerToolBarDark">#281cc6</color>
+    <color name="pickerToolBarDark">#2d20d6</color>
     <color name="pickerToolBarText">#ffffff</color>
     <color name="pickerAccent">#2d20d5</color>
     <color name="pickerBottomTextColor">#ffffff</color>

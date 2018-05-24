@@ -12,7 +12,8 @@ Android-utils [![](https://jitpack.io/v/github2136/Android-utils.svg)](https://j
 **PicturePickerActivity**选择图片  
 **ARG_RESULT**返回的结果  
 **ARG_PICKER_COUNT**可选择的图片总数  
-  
+**ARG_PICKER_PATHS**已选中图片路径  
+
 **PictureViewActivity**图片浏览  
 **ARG_PICTURES**显示图片路径   
 **ARG_CURRENT_INDEX**显示的图片下标  
@@ -32,3 +33,10 @@ Android-utils [![](https://jitpack.io/v/github2136/Android-utils.svg)](https://j
 **ARG_OUTPUT_X**输出图片X  
 **ARG_OUTPUT_Y**输出图片Y  
 **ARG_OUTPUT_IMG**保存目录可以为空  
+
+**pickerToolBarBg** 标题颜色  
+**pickerToolBarDark** 状态栏颜色  
+**pickerToolBarText** 标题文字颜色  
+**pickerAccent** 图片复选框颜色  
+**pickerBottomTextColor** 预览底部文字颜色  
+**pickerImgColor** 加载、错误图片颜色  
