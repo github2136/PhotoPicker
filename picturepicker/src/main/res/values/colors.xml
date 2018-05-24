@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="pickerToolBarBg">#9993e9</color>
-    <color name="pickerToolBarDark">#0093e9</color>
-    <color name="pickerToolBarText">#321465</color>
-    <color name="pickerAccent">#999999</color>
+    <color name="pickerToolBarBg">#2d20d6</color>
+    <color name="pickerToolBarDark">#281cc6</color>
+    <color name="pickerToolBarText">#ffffff</color>
+    <color name="pickerAccent">#2d20d5</color>
     <color name="pickerBottomTextColor">#ffffff</color>
-    <color name="pickerImgColor">#ff999999</color>
-
+    <color name="pickerImgColor">#999999</color>
 
     <color name="colorSelTran">#1a000000</color>
 </resources>

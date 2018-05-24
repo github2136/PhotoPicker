@@ -42,6 +42,8 @@ public class PicturePickerActivity extends AppCompatActivity {
     private static final int REQUEST_FOLDER = 525;
     public static final String ARG_RESULT = "RESULT";//结果图片路径集合
     public static final String ARG_PICKER_COUNT = "PICKER_COUNT";//所选图片数量
+    public static final String ARG_PICKER_PATHS = "PICKER_PATHS";//所选图片路径
+    private ArrayList<String> mPickerPaths;//已选文件路径
     private List<String> mFolderName;//文件夹名称
     private Map<String, List<PicturePicker>> mFolderPath;//文件夹名称对应图片
     private int mPickerCount;//可选择图片数量
@@ -66,9 +68,10 @@ public class PicturePickerActivity extends AppCompatActivity {
             Toast.makeText(this, "可选图片数量至少为1", Toast.LENGTH_SHORT).show();
             finish();
         }
-
         mSelectFolderName = "*";
-        setToolbarTitle(0, mSelectFolderName);
+        if (getIntent().hasExtra(ARG_PICKER_PATHS)) {
+            mPickerPaths = getIntent().getStringArrayListExtra(ARG_PICKER_PATHS);
+        }
         mMimeType.add("image/jpeg");
         mMimeType.add("image/png");
         mMimeType.add("image/gif");
@@ -110,6 +113,13 @@ public class PicturePickerActivity extends AppCompatActivity {
 
         getImages();
         mPicturePickerAdapter = new PicturePickerAdapter(this, mFolderPath.get("*"), mPickerCount);
+        if (mPickerPaths != null) {
+            mPicturePickerAdapter.setPickerPaths(mPickerPaths);
+            setToolbarTitle(mPickerPaths.size(), mSelectFolderName);
+        } else {
+            setToolbarTitle(0, mSelectFolderName);
+        }
+
         rvImages.setAdapter(mPicturePickerAdapter);
         mPicturePickerAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override

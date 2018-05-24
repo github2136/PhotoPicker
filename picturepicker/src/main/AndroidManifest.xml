@@ -1,8 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.github2136.picturepicker">
 
-    <application
-        >
+    <application>
         <activity
             android:name=".activity.PicturePickerActivity"
             android:screenOrientation="portrait"

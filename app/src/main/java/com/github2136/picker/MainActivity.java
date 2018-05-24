@@ -15,6 +15,7 @@ import com.github2136.picturepicker.activity.PictureViewActivity;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+    ArrayList<String> selectPaths;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +62,18 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, 2);
             }
         });
+        Button btnSelectImgsPicker = (Button) findViewById(R.id.im_select_imgs_picker);
+        btnSelectImgsPicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, PicturePickerActivity.class);
+                intent.putExtra(PicturePickerActivity.ARG_PICKER_COUNT, 5);
+                if (selectPaths != null) {
+                    intent.putStringArrayListExtra(PicturePickerActivity.ARG_PICKER_PATHS, selectPaths);
+                }
+                startActivityForResult(intent, 3);
+            }
+        });
     }
 
     @Override
@@ -89,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
                 case 3: {
-
+                    selectPaths = data.getStringArrayListExtra(PicturePickerActivity.ARG_RESULT);
                 }
                 break;
             }
