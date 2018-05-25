@@ -98,12 +98,14 @@ public class PictureViewActivity extends AppCompatActivity implements PhotoFragm
     }
 
     private void setBottom() {
-        if (mPickerPaths.contains(mPhotoPaths.get(vpPhoto.getCurrentItem()))) {
-            ibCheck.setImageResource(R.drawable.ic_picker_check_box);
-        } else {
-            ibCheck.setImageResource(R.drawable.ic_picker_check_box_outline);
+        if (mPickerPaths != null) {
+            if (mPickerPaths.contains(mPhotoPaths.get(vpPhoto.getCurrentItem()))) {
+                ibCheck.setImageResource(R.drawable.ic_picker_check_box);
+            } else {
+                ibCheck.setImageResource(R.drawable.ic_picker_check_box_outline);
+            }
+            tvTitle.setText(String.format("%d/%d", mPickerPaths.size(), mPickerCount));
         }
-        tvTitle.setText(String.format("%d/%d", mPickerPaths.size(), mPickerCount));
     }
 
     ViewPager.SimpleOnPageChangeListener mPagerChangeListener = new ViewPager.SimpleOnPageChangeListener() {
