@@ -89,10 +89,6 @@ public class MainActivity extends AppCompatActivity {
                     startActivityForResult(intent, 3);
                 }
                 break;
-                case 3: {
-                    selectPaths = data.getStringArrayListExtra(PicturePickerActivity.ARG_RESULT);
-                }
-                break;
             }
 
         }

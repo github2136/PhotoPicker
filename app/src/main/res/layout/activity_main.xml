@@ -24,7 +24,7 @@
         android:id="@+id/im_capture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="拍图片"/>
+        android:text="拍图片，并裁剪"/>
 
     <Button
         android:id="@+id/im_preview"

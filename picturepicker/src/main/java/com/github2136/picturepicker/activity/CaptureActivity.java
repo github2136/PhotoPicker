@@ -1,16 +1,17 @@
 package com.github2136.picturepicker.activity;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 
 import com.github2136.picturepicker.R;
-import com.github2136.util.CommonUtil;
 import com.github2136.util.FileUtil;
 import com.github2136.util.SPUtil;
 
@@ -47,7 +48,7 @@ public class CaptureActivity extends AppCompatActivity {
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
-        Uri mShootUri = Uri.fromFile(file);
+        Uri mShootUri = getUri(file);
         mSpUtil.edit().putValue(KEY_FILE_NAME, file.getPath()).apply();
         intent.putExtra(MediaStore.EXTRA_OUTPUT, mShootUri);
         startActivityForResult(intent, REQUEST_CAPTURE);
@@ -79,7 +80,7 @@ public class CaptureActivity extends AppCompatActivity {
             Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
             String fileName = mSpUtil.getString(KEY_FILE_NAME);
             File f = new File(fileName);
-            Uri contentUri = Uri.fromFile(f);
+            Uri contentUri =getUri(f);
             mediaScanIntent.setData(contentUri);
             this.sendBroadcast(mediaScanIntent);
             data = new Intent();
@@ -87,5 +88,23 @@ public class CaptureActivity extends AppCompatActivity {
             setResult(RESULT_OK, data);
         }
         finish();
+    }
+
+    /**
+     * 返回不同的图片uri
+     *
+     * @param file
+     * @return
+     */
+    private Uri getUri(File file) {
+        Uri uri;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            uri = Uri.fromFile(file);
+        } else {
+            ContentValues contentValues = new ContentValues(1);
+            contentValues.put(MediaStore.Images.Media.DATA, file.getAbsolutePath());
+            uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+        }
+        return uri;
     }
 }

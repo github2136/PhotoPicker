@@ -1,10 +1,12 @@
 package com.github2136.picturepicker.activity;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -19,7 +21,7 @@ import com.github2136.util.SPUtil;
 import java.io.File;
 
 /**
- * 图片裁剪<br>
+ * 图片裁剪，某些机型无法使用<br>
  * ARG_CROP_IMG 需要裁剪的图片路径<br>
  * ARG_ASPECT_X/ARG_ASPECT_Y裁剪框比例<br>
  * ARG_OUTPUT_X/ARG_OUTPUT_Y图片输出尺寸<br>
@@ -69,7 +71,7 @@ public class CropActivity extends AppCompatActivity {
             }
             mSpUtil.edit().putValue(KEY_FILE_NAME, outImg.getPath()).apply();
             Intent intent = new Intent("com.android.camera.action.CROP");
-            intent.setDataAndType(Uri.fromFile(new File(img)), "image/*");
+            intent.setDataAndType(getUri(new File(img)), "image/*");
             intent.putExtra("crop", "true");
             intent.putExtra("aspectX", aspX);
             intent.putExtra("aspectY", aspY);
@@ -77,11 +79,16 @@ public class CropActivity extends AppCompatActivity {
             intent.putExtra("outputY", outY);
             intent.putExtra("scale", true);// 如果选择的图小于裁剪大小则进行放大
             intent.putExtra("scaleUpIfNeeded", true);// 如果选择的图小于裁剪大小则进行放大
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(outImg));
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, getUri(outImg));
             intent.putExtra("return-data", false);
             intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
             intent.putExtra("noFaceDetection", true); // no face detection
-            startActivityForResult(intent, REQUEST_CROP);
+            if (CommonUtil.isIntentExisting(this, intent)) {
+                startActivityForResult(intent, REQUEST_CROP);
+            } else {
+                Toast.makeText(this, "该机器无法裁剪", Toast.LENGTH_SHORT).show();
+                finish();
+            }
         }
     }
 
@@ -111,7 +118,7 @@ public class CropActivity extends AppCompatActivity {
             Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
             String fileName = mSpUtil.getString(KEY_FILE_NAME);
             File f = new File(fileName);
-            Uri contentUri = Uri.fromFile(f);
+            Uri contentUri = getUri(f);
             mediaScanIntent.setData(contentUri);
             this.sendBroadcast(mediaScanIntent);
             data = new Intent();
@@ -119,5 +126,23 @@ public class CropActivity extends AppCompatActivity {
             setResult(RESULT_OK, data);
         }
         finish();
+    }
+
+    /**
+     * 返回不同的图片uri
+     *
+     * @param file
+     * @return
+     */
+    private Uri getUri(File file) {
+        Uri uri;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            uri = Uri.fromFile(file);
+        } else {
+            ContentValues contentValues = new ContentValues(1);
+            contentValues.put(MediaStore.Images.Media.DATA, file.getAbsolutePath());
+            uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+        }
+        return uri;
     }
 }
