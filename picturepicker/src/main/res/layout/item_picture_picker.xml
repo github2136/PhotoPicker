@@ -13,17 +13,23 @@
         android:layout_height="200dp"
         tools:srcCompat="@drawable/img_picker_place"/>
 
-    <ImageButton
-        android:id="@+id/ib_check"
+    <FrameLayout
+        android:id="@+id/fl_check"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@id/iv_image"
         android:layout_alignTop="@id/iv_image"
-        android:background="@android:color/transparent"
-        android:paddingBottom="16dp"
+        android:layout_alignRight="@id/iv_image"
         android:paddingLeft="16dp"
-        android:paddingRight="4dp"
         android:paddingTop="4dp"
-        android:tint="@color/pickerAccent"
-        app:srcCompat="@drawable/ic_picker_check_box"/>
+        android:paddingRight="4dp"
+        android:paddingBottom="16dp">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_check"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/sha_picker_check_bg"
+            android:tint="@color/pickerAccent"
+            app:srcCompat="@drawable/ic_picker_check_box"/>
+    </FrameLayout>
 </RelativeLayout>
