@@ -24,8 +24,6 @@ dependencies {
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     api 'androidx.appcompat:appcompat:1.0.2'
     api 'androidx.recyclerview:recyclerview:1.0.0'
-    api 'com.google.code.gson:gson:2.8.5'
-    api 'com.github.github2136:Android-utils:102081f6d7'
     api 'com.github.chrisbanes:PhotoView:2.1.3'
 }
 

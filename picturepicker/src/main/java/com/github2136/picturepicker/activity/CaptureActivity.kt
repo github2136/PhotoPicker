@@ -3,21 +3,17 @@ package com.github2136.picturepicker.activity
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.TextUtils
-
-import com.github2136.picturepicker.R
-import com.github2136.util.FileUtil
-import com.github2136.util.SPUtil
-
-import java.io.File
-
 import androidx.appcompat.app.AppCompatActivity
+import com.github2136.picturepicker.R
+import com.github2136.picturepicker.other.PictureFileUtil
+import com.github2136.picturepicker.other.PictureSPUtil
+import java.io.File
 
 /**
  * 图片拍摄<br></br>
@@ -26,7 +22,7 @@ import androidx.appcompat.app.AppCompatActivity
  * ARG_RESULT返回的图片路径
  */
 class CaptureActivity : AppCompatActivity() {
-    private var mSpUtil: SPUtil? = null
+    private var mSpUtil: PictureSPUtil? = null
 
     private val photoPath: String?
         get() {
@@ -37,7 +33,7 @@ class CaptureActivity : AppCompatActivity() {
                 if (metaData != null) {
                     mPhotoPath = metaData.getString("picture_picker_path")
                     if (!TextUtils.isEmpty(mPhotoPath)) {
-                        mPhotoPath = FileUtil.getExternalStorageRootPath() + File.separator + mPhotoPath
+                        mPhotoPath = PictureFileUtil.getExternalStorageRootPath() + File.separator + mPhotoPath
                     }
                 }
             } catch (e: PackageManager.NameNotFoundException) {
@@ -45,7 +41,7 @@ class CaptureActivity : AppCompatActivity() {
             }
 
             if (TextUtils.isEmpty(mPhotoPath)) {
-                mPhotoPath = FileUtil.getExternalStoragePrivatePicPath(this)
+                mPhotoPath = PictureFileUtil.getExternalStoragePrivatePicPath(this)
             }
             return mPhotoPath
         }
@@ -53,15 +49,15 @@ class CaptureActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_capture)
-        mSpUtil = SPUtil.getInstance(this, javaClass.simpleName)
+        mSpUtil = PictureSPUtil.getInstance(this)
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         val filePath: String
         val file: File
         if (getIntent().hasExtra(ARG_FILE_PATH)) {
             filePath = getIntent().getStringExtra(ARG_FILE_PATH)
-            file = File(FileUtil.getExternalStorageRootPath() + File.separator + filePath, FileUtil.createFileName(".jpg"))
+            file = File(PictureFileUtil.getExternalStorageRootPath() + File.separator + filePath, PictureFileUtil.createFileName(".jpg"))
         } else {
-            file = File(photoPath, FileUtil.createFileName(".jpg"))
+            file = File(photoPath, PictureFileUtil.createFileName(".jpg"))
         }
         if (!file.parentFile.exists()) {
             file.parentFile.mkdirs()
@@ -111,6 +107,6 @@ class CaptureActivity : AppCompatActivity() {
         val ARG_FILE_PATH = "FILE_PATH"//图片保存路径
 
         private val REQUEST_CAPTURE = 706
-        private val KEY_FILE_NAME = "FILE_NAME"
+        private val KEY_FILE_NAME = "CAPTURE_FILE_NAME"
     }
 }

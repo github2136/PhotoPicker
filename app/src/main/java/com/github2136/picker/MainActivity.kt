@@ -1,19 +1,15 @@
 package com.github2136.picker
 
 import android.content.Intent
-
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-
 import com.github2136.picturepicker.activity.CaptureActivity
 import com.github2136.picturepicker.activity.CropActivity
 import com.github2136.picturepicker.activity.PicturePickerActivity
 import com.github2136.picturepicker.activity.PictureViewActivity
-
-import java.util.ArrayList
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     internal var selectPaths: ArrayList<String>? = null

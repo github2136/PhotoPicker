@@ -3,7 +3,6 @@ package com.github2136.picturepicker.activity
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
@@ -12,15 +11,12 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.text.TextUtils
 import android.widget.Toast
-
-import com.github2136.picturepicker.R
-import com.github2136.util.CommonUtil
-import com.github2136.util.FileUtil
-import com.github2136.util.SPUtil
-
-import java.io.File
-
 import androidx.appcompat.app.AppCompatActivity
+import com.github2136.picturepicker.R
+import com.github2136.picturepicker.other.PictureCommonUtil
+import com.github2136.picturepicker.other.PictureFileUtil
+import com.github2136.picturepicker.other.PictureSPUtil
+import java.io.File
 
 /**
  * 图片裁剪，某些机型无法使用<br></br>
@@ -32,7 +28,7 @@ import androidx.appcompat.app.AppCompatActivity
  * ARG_RESULT返回的图片路径
  */
 class CropActivity : AppCompatActivity() {
-    private var mSpUtil: SPUtil? = null
+    private var mSpUtil: PictureSPUtil? = null
 
     private val photoPath: String?
         get() {
@@ -43,7 +39,7 @@ class CropActivity : AppCompatActivity() {
                 if (metaData != null) {
                     mPhotoPath = metaData.getString("picture_picker_path")
                     if (!TextUtils.isEmpty(mPhotoPath)) {
-                        mPhotoPath = FileUtil.getExternalStorageRootPath() + File.separator + mPhotoPath
+                        mPhotoPath = PictureFileUtil.getExternalStorageRootPath() + File.separator + mPhotoPath
                     }
                 }
             } catch (e: PackageManager.NameNotFoundException) {
@@ -51,7 +47,7 @@ class CropActivity : AppCompatActivity() {
             }
 
             if (TextUtils.isEmpty(mPhotoPath)) {
-                mPhotoPath = FileUtil.getExternalStoragePrivatePicPath(this)
+                mPhotoPath = PictureFileUtil.getExternalStoragePrivatePicPath(this)
             }
             return mPhotoPath
         }
@@ -59,7 +55,7 @@ class CropActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_crop)
-        mSpUtil = SPUtil.getInstance(this, javaClass.simpleName)
+        mSpUtil = PictureSPUtil.getInstance(this)
         if (!(intent.hasExtra(ARG_CROP_IMG) &&
                         intent.hasExtra(ARG_ASPECT_X) &&
                         intent.hasExtra(ARG_ASPECT_Y) &&
@@ -76,9 +72,9 @@ class CropActivity : AppCompatActivity() {
             val outImg: File
             if (intent.hasExtra(ARG_OUTPUT_IMG)) {
                 val out = intent.getStringExtra(ARG_OUTPUT_IMG)
-                outImg = File(FileUtil.getExternalStorageRootPath() + File.separator + out, FileUtil.createFileName(".jpg"))
+                outImg = File(PictureFileUtil.getExternalStorageRootPath() + File.separator + out, PictureFileUtil.createFileName(".jpg"))
             } else {
-                outImg = File(photoPath, FileUtil.createFileName(".jpg"))
+                outImg = File(photoPath, PictureFileUtil.createFileName(".jpg"))
             }
             if (!outImg.parentFile.exists()) {
                 outImg.parentFile.mkdirs()
@@ -97,7 +93,7 @@ class CropActivity : AppCompatActivity() {
             intent.putExtra("return-data", false)
             intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString())
             intent.putExtra("noFaceDetection", true) // no face detection
-            if (CommonUtil.isIntentExisting(this, intent)) {
+            if (PictureCommonUtil.isIntentExisting(this, intent)) {
                 startActivityForResult(intent, REQUEST_CROP)
             } else {
                 Toast.makeText(this, "该机器无法裁剪", Toast.LENGTH_SHORT).show()
@@ -149,6 +145,6 @@ class CropActivity : AppCompatActivity() {
         val ARG_OUTPUT_Y = "OUTPUT_Y"
         val ARG_OUTPUT_IMG = "OUTPUT_IMG"
         private val REQUEST_CROP = 742
-        private val KEY_FILE_NAME = "FILE_NAME"
+        private val KEY_FILE_NAME = "CROP_FILE_NAME"
     }
 }

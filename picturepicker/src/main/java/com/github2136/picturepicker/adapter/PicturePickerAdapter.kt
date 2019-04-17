@@ -3,24 +3,22 @@ package com.github2136.picturepicker.adapter
 import android.content.Context
 import android.graphics.Color
 import android.view.View
-import android.widget.*
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.RelativeLayout
+import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
-
-import com.github2136.base.BaseRecyclerAdapter
-import com.github2136.base.ViewHolderRecyclerView
 import com.github2136.picturepicker.R
 import com.github2136.picturepicker.entity.PicturePicker
-import com.github2136.picturepicker.other.ImageLoader
 import com.github2136.picturepicker.other.ImageLoaderInstance
-
-import java.util.ArrayList
+import java.util.*
 
 /**
  * Created by yb on 2017/8/26.
  */
 
 class PicturePickerAdapter(val context: Context, list: MutableList<PicturePicker>, private val mSelectCount: Int) :
-        BaseRecyclerAdapter<PicturePicker>(list) {
+        PictureBaseAdapter<PicturePicker>(list) {
     var pickerPaths: ArrayList<String>? = null
     private val mViewSize: Int
     private val mImgSize: Int
@@ -42,7 +40,7 @@ class PicturePickerAdapter(val context: Context, list: MutableList<PicturePicker
         return R.layout.item_picture_picker
     }
 
-    override fun onBindView(picturePicker: PicturePicker, holder: ViewHolderRecyclerView, position: Int) {
+    override fun onBindView(picturePicker: PicturePicker, holder: PictureVH, position: Int) {
         val ivImage = holder.getView<ImageView>(R.id.iv_image)
         val ivCheck = holder.getView<AppCompatImageView>(R.id.iv_check)
         val flCheck = holder.getView<FrameLayout>(R.id.fl_check)

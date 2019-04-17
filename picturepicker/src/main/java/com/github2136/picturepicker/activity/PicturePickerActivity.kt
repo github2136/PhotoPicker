@@ -18,8 +18,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github2136.picturepicker.R
 import com.github2136.picturepicker.adapter.PicturePickerAdapter
 import com.github2136.picturepicker.entity.PicturePicker
+import com.github2136.picturepicker.other.PictureFileUtil
 import com.github2136.picturepicker.other.PickerImageItemDecoration
-import com.github2136.util.FileUtil
 import java.util.*
 
 /**
@@ -318,9 +318,9 @@ class PicturePickerActivity : AppCompatActivity() {
                 REQUEST_FOLDER -> {
                     val path = ArrayList<String>()
                     val intent = Intent()
-                    val p = FileUtil.getFileAbsolutePath(this, data!!.data!!)
+                    val p = PictureFileUtil.getFileAbsolutePath(this, data!!.data!!)
 
-                    val suffix = FileUtil.getSuffix(p!!)
+                    val suffix = PictureFileUtil.getSuffix(p!!)
                     //获取文件后缀
                     val mimeTypeMap = MimeTypeMap.getSingleton()
 
