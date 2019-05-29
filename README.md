@@ -1,9 +1,7 @@
 图片选择器  
 [![](https://jitpack.io/v/github2136/PhotoPicker.svg)](https://jitpack.io/#github2136/PhotoPicker)  
 使用该库还需要引用以下库  
-Android-utils [![](https://jitpack.io/v/github2136/Android-utils.svg)](https://jitpack.io/#github2136/Android-utils)  
-**compile 'com.google.code.gson:gson:2.8.2'**  
-**compile 'com.github.chrisbanes:PhotoView:2.1.3'**  
+**com.github.chrisbanes:PhotoView:2.1.3**  
 
 **样式控制**  
 * **pickerToolBarBg** 标题颜色  
