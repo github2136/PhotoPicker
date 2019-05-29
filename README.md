@@ -1,5 +1,5 @@
 图片选择器  
-[![](https://jitpack.io/v/github2136/PicturePicker.svg)](https://jitpack.io/#github2136/PicturePicker)  
+[![](https://jitpack.io/v/github2136/PhotoPicker.svg)](https://jitpack.io/#github2136/PhotoPicker)  
 使用该库还需要引用以下库  
 Android-utils [![](https://jitpack.io/v/github2136/Android-utils.svg)](https://jitpack.io/#github2136/Android-utils)  
 **compile 'com.google.code.gson:gson:2.8.2'**  
@@ -14,10 +14,10 @@ Android-utils [![](https://jitpack.io/v/github2136/Android-utils.svg)](https://j
 * **pickerImgColor** 加载、错误图片颜色  
 
 **自定义图片加载器**  
-* 实现`com.github2136.picturepicker.other.ImageLoader`接口  
+* 实现`com.github2136.photopicker.other.ImageLoader`接口  
 * 在AndroidManifest.xml中添加`meta-data`，value为`picker_image_loader`，name为实现`ImageLoader`接口类完整路径  
   
-**PicturePickerActivity**选择图片  
+**PhotoPickerActivity**选择图片  
 **请求参数**  
 
 * **ARG_PICKER_COUNT**可选择的图片总数  
@@ -26,10 +26,10 @@ Android-utils [![](https://jitpack.io/v/github2136/Android-utils.svg)](https://j
 
 * **ARG_RESULT**返回的结果  
 
-**PictureViewActivity**图片浏览  
+**PhotoViewActivity**图片浏览  
 **请求参数**  
 
-* **ARG_PICTURES**显示图片路径   
+* **ARG_PHOTOS**显示图片路径   
 * **ARG_CURRENT_INDEX**显示的图片下标  
 * **ARG_PICKER_PATHS**已选中图片路径  
 * **ARG_PICKER_COUNT**可选图片数量  

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.github2136.picker">
+          package="com.github2136.photo">
 
     <application
         android:allowBackup="true"
@@ -9,9 +9,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <meta-data
-            android:name="com.github2136.picker.GlideLoader"
+            android:name="com.github2136.photo.GlideLoader"
             android:value="picker_image_loader"/>
-        <activity android:name=".MainActivity">
+        <activity android:name="com.github2136.photo.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
