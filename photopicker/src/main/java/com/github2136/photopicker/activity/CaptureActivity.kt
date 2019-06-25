@@ -19,7 +19,8 @@ import java.io.File
  * 图片拍摄<br></br>
  * 默认存储只外部私有图片目录下，或在application中添加name为photo_picker_path的&lt;meta&#62;，私有目录下的图片不能添加到媒体库中，选择图片时将会无法查看到<br></br>
  * ARG_FILE_PATH图片保存路径目录，不包括文件名，优先级比photo_picker_path高，可不填<br></br>
- * ARG_RESULT返回的图片路径
+ * ARG_RESULT返回的图片物理路径
+ * ARG_RESULT_URI返回的图片URI路径
  */
 class CaptureActivity : AppCompatActivity() {
     private var mSpUtil: PhotoSPUtil? = null
@@ -63,7 +64,10 @@ class CaptureActivity : AppCompatActivity() {
             file.parentFile.mkdirs()
         }
         val mShootUri = getUri(file)
-        mSpUtil!!.edit().putValue(KEY_FILE_NAME, file.path).apply()
+        mSpUtil!!.edit()
+            .putValue(KEY_FILE_PATH, file.path)
+            .putValue(KEY_FILE_URI, mShootUri.toString())
+            .apply()
         intent.putExtra(MediaStore.EXTRA_OUTPUT, mShootUri)
         startActivityForResult(intent, REQUEST_CAPTURE)
     }
@@ -71,13 +75,15 @@ class CaptureActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
             val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
-            val fileName = mSpUtil!!.getString(KEY_FILE_NAME)
-            val f = File(fileName)
+            val filePath = mSpUtil!!.getString(KEY_FILE_PATH)
+            val fileUri = mSpUtil!!.getString(KEY_FILE_URI)
+            val f = File(filePath)
             val contentUri = getUri(f)
             mediaScanIntent.data = contentUri
             this.sendBroadcast(mediaScanIntent)
             val result = Intent()
-            result.putExtra(ARG_RESULT, fileName)
+            result.putExtra(ARG_RESULT, filePath)
+            result.putExtra(ARG_RESULT_URI, fileUri)
             setResult(Activity.RESULT_OK, result)
         }
         finish()
@@ -103,9 +109,12 @@ class CaptureActivity : AppCompatActivity() {
 
     companion object {
         val ARG_RESULT = "RESULT"
+        val ARG_RESULT_URI = "RESULT_URI"
         val ARG_FILE_PATH = "FILE_PATH"//图片保存路径
 
         private val REQUEST_CAPTURE = 706
-        private val KEY_FILE_NAME = "CAPTURE_FILE_NAME"
+        //文件路径
+        private val KEY_FILE_PATH = "CAPTURE_FILE_PATH"
+        private val KEY_FILE_URI = "CAPTURE_FILE_URI"
     }
 }
