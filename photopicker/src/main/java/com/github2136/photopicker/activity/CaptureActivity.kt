@@ -69,7 +69,6 @@ class CaptureActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        var data = data
         if (resultCode == Activity.RESULT_OK) {
             val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
             val fileName = mSpUtil!!.getString(KEY_FILE_NAME)
@@ -77,9 +76,9 @@ class CaptureActivity : AppCompatActivity() {
             val contentUri = getUri(f)
             mediaScanIntent.data = contentUri
             this.sendBroadcast(mediaScanIntent)
-            data = Intent()
-            data.putExtra(ARG_RESULT, fileName)
-            setResult(Activity.RESULT_OK, data)
+            val result = Intent()
+            result.putExtra(ARG_RESULT, fileName)
+            setResult(Activity.RESULT_OK, result)
         }
         finish()
     }

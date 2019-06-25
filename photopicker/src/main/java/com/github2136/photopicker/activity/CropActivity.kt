@@ -19,7 +19,7 @@ import com.github2136.photopicker.other.PhotoSPUtil
 import java.io.File
 
 /**
- * 图片裁剪，某些机型无法使用<br></br>
+ * 图片裁剪<br></br>
  * ARG_CROP_IMG 需要裁剪的图片路径<br></br>
  * ARG_ASPECT_X/ARG_ASPECT_Y裁剪框比例<br></br>
  * ARG_OUTPUT_X/ARG_OUTPUT_Y图片输出尺寸<br></br>
@@ -27,7 +27,6 @@ import java.io.File
  * OUTPUT_IMG图片保存路径目录，不包括文件名，优先级比photo_picker_path高，可不填<br></br>
  * ARG_RESULT返回的图片路径
  */
-@Deprecated("废弃类，某些机型无法使用")
 class CropActivity : AppCompatActivity() {
     private var mSpUtil: PhotoSPUtil? = null
 
@@ -58,10 +57,10 @@ class CropActivity : AppCompatActivity() {
         setContentView(R.layout.activity_crop)
         mSpUtil = PhotoSPUtil.getInstance(this)
         if (!(intent.hasExtra(ARG_CROP_IMG) &&
-                        intent.hasExtra(ARG_ASPECT_X) &&
-                        intent.hasExtra(ARG_ASPECT_Y) &&
-                        intent.hasExtra(ARG_OUTPUT_X) &&
-                        intent.hasExtra(ARG_OUTPUT_Y))) {
+                intent.hasExtra(ARG_ASPECT_X) &&
+                intent.hasExtra(ARG_ASPECT_Y) &&
+                intent.hasExtra(ARG_OUTPUT_X) &&
+                intent.hasExtra(ARG_OUTPUT_Y))) {
             Toast.makeText(this, "缺少参数", Toast.LENGTH_SHORT).show()
             finish()
         } else {
@@ -82,7 +81,10 @@ class CropActivity : AppCompatActivity() {
             }
             mSpUtil!!.edit().putValue(KEY_FILE_NAME, outImg.path).apply()
             val intent = Intent("com.android.camera.action.CROP")
-            intent.setDataAndType(getUri(File(img)), "image/*")
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+                intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            }
+            intent.setDataAndType(Uri.parse(img), "image/*")
             intent.putExtra("crop", "true")
             intent.putExtra("aspectX", aspX)
             intent.putExtra("aspectY", aspY)
@@ -104,7 +106,6 @@ class CropActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        var data = data
         if (resultCode == Activity.RESULT_OK) {
             val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
             val fileName = mSpUtil!!.getString(KEY_FILE_NAME)
@@ -112,9 +113,9 @@ class CropActivity : AppCompatActivity() {
             val contentUri = getUri(f)
             mediaScanIntent.data = contentUri
             this.sendBroadcast(mediaScanIntent)
-            data = Intent()
-            data.putExtra(ARG_RESULT, fileName)
-            setResult(Activity.RESULT_OK, data)
+            val result = Intent()
+            result.putExtra(ARG_RESULT, fileName)
+            setResult(Activity.RESULT_OK, result)
         }
         finish()
     }
