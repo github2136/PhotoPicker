@@ -3,6 +3,7 @@ package com.github2136.photopicker.activity
 import android.app.Activity
 import android.content.Intent
 import android.database.Cursor
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.Menu
@@ -20,49 +21,32 @@ import com.github2136.photopicker.adapter.PhotoPickerAdapter
 import com.github2136.photopicker.entity.PhotoPicker
 import com.github2136.photopicker.other.PhotoFileUtil
 import com.github2136.photopicker.other.PickerImageItemDecoration
+import kotlinx.android.synthetic.main.activity_photo_picker.*
+import kotlinx.android.synthetic.main.view_picker_title.*
 import java.util.*
 
 /**
- * 选择图片<br></br>
- * ARG_PICKER_COUNT选择图片数量<br></br>
- * ARG_RESULT返回的图片路径
+ *      选择图片
+ *      ARG_PICKER_COUNT选择图片数量
+ *      ARG_RESULT返回的图片路径
+ *      ARG_RESULT_URI返回图片的URI
  */
 class PhotoPickerActivity : AppCompatActivity() {
-    private var mFolderName: MutableList<String>? = null//文件夹名称
-    private var mFolderPath: MutableMap<String, MutableList<PhotoPicker>>? = null//文件夹名称对应图片
+    private var mFolderName: MutableList<String> = mutableListOf()//文件夹名称
+    private var mFolderPath: MutableMap<String, MutableList<PhotoPicker>> = HashMap()//文件夹名称对应图片
     private var mPickerCount: Int = 0//可选择图片数量
     private lateinit var mPhotoPickerAdapter: PhotoPickerAdapter
     private val mMimeType = HashSet<String>()
     private var mFolderDialog: AlertDialog? = null
     private lateinit var mSelectFolderName: String
-    private var btnFolder: Button? = null
-    private var btnPreview: Button? = null
-
-    private val mOnClickListener = View.OnClickListener { v ->
-        if (v.id == R.id.btn_folder) {
-            mFolderDialog!!.show()
-        } else if (v.id == R.id.btn_preview) {
-            val intent = Intent(this@PhotoPickerActivity, PhotoViewActivity::class.java)
-
-            intent.putStringArrayListExtra(PhotoViewActivity.ARG_PHOTOS, mPhotoPickerAdapter.pickerPaths)
-            intent.putExtra(PhotoViewActivity.ARG_CURRENT_INDEX, 0)
-
-            intent.putStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS, mPhotoPickerAdapter.pickerPaths)
-            intent.putExtra(PhotoViewActivity.ARG_PICKER_COUNT, mPickerCount)
-
-            startActivityForResult(intent, REQUEST_photo_VIEW)
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_photo_picker)
-        val tbTitle = findViewById<View>(R.id.tb_title) as Toolbar
-        btnFolder = findViewById<View>(R.id.btn_folder) as Button
-        btnPreview = findViewById<View>(R.id.btn_preview) as Button
-        btnFolder!!.setOnClickListener(mOnClickListener)
-        btnPreview!!.setOnClickListener(mOnClickListener)
-        setSupportActionBar(tbTitle)
+
+        btn_folder.setOnClickListener(mOnClickListener)
+        btn_preview.setOnClickListener(mOnClickListener)
+        setSupportActionBar(tb_title)
         mPickerCount = intent.getIntExtra(ARG_PICKER_COUNT, 0)
         if (mPickerCount < 1) {
             Toast.makeText(this, "可选图片数量至少为1", Toast.LENGTH_SHORT).show()
@@ -74,14 +58,14 @@ class PhotoPickerActivity : AppCompatActivity() {
         mMimeType.add("image/png")
         mMimeType.add("image/gif")
         if (mPickerCount == 1) {
-            btnPreview!!.visibility = View.GONE
+            btn_preview.visibility = View.GONE
         }
         // getSupportActionBar().setToolbarTitle("标题");
         // getSupportActionBar().setSubtitle("副标题");
         // getSupportActionBar().setLogo(R.drawable.ic_launcher);
 
         /* 菜单的监听可以在toolbar里设置，也可以像ActionBar那样，通过Activity的onOptionsItemSelected回调方法来处理 */
-        //        tbTitle.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+        //        tb_title.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
         //            @Override
         //            public boolean onMenuItemClick(MenuItem item) {
         //                switch (item.getItemId()) {
@@ -106,57 +90,76 @@ class PhotoPickerActivity : AppCompatActivity() {
         rvImages.addItemDecoration(selectImageItemDecoration)
 
         mFolderName = mutableListOf()
-        mFolderName!!.add("*")//表示全部
+        mFolderName.add("*")//表示全部
         mFolderPath = HashMap()
 
         getImages()
-        mPhotoPickerAdapter = PhotoPickerAdapter(this, mFolderPath!!["*"]!!, mPickerCount)
+        mPhotoPickerAdapter = PhotoPickerAdapter(this, mFolderPath["*"]!!, mPickerCount)
 
         rvImages.adapter = mPhotoPickerAdapter
-        mPhotoPickerAdapter .setOnItemClickListener { position ->
+        mPhotoPickerAdapter.setOnItemClickListener { position ->
             if (mPickerCount == 1) {
-                    val imgs = ArrayList<String>()
-                    imgs.add(mPhotoPickerAdapter.getItem(position)!!.data!!)
-                    val intent = Intent()
-                    intent.putStringArrayListExtra(ARG_RESULT, imgs)
-                    setResult(Activity.RESULT_OK, intent)
-                    finish()
-                } else {
-                    val intent = Intent(this@PhotoPickerActivity, PhotoViewActivity::class.java)
-                    val path = ArrayList<String>()
-                    for (img in mPhotoPickerAdapter.getItem()!!) {
-                        path.add(img.data!!)
-                    }
-                    intent.putStringArrayListExtra(PhotoViewActivity.ARG_PHOTOS, path)
-                    intent.putExtra(PhotoViewActivity.ARG_CURRENT_INDEX, position)
-
-                    intent.putStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS, mPhotoPickerAdapter.pickerPaths)
-                    intent.putExtra(PhotoViewActivity.ARG_PICKER_COUNT, mPickerCount)
-
-                    startActivityForResult(intent, REQUEST_photo_VIEW)
+                val photoPicker = mPhotoPickerAdapter.getItem(position)!!
+                val uris = ArrayList<Uri>()
+                val imgs = ArrayList<String>()
+                uris.add(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, photoPicker._id.toString()))
+                imgs.add(photoPicker.data!!)
+                val intent = Intent()
+                intent.putParcelableArrayListExtra(ARG_RESULT_URI, uris)
+                intent.putStringArrayListExtra(ARG_RESULT, imgs)
+                setResult(Activity.RESULT_OK, intent)
+                finish()
+            } else {
+                val intent = Intent(this@PhotoPickerActivity, PhotoViewActivity::class.java)
+                val imgs = ArrayList<String>()
+                for (img in mPhotoPickerAdapter.getItem()!!) {
+                    imgs.add(img.data!!)
                 }
+                intent.putStringArrayListExtra(PhotoViewActivity.ARG_PHOTOS, imgs)
+                intent.putExtra(PhotoViewActivity.ARG_CURRENT_INDEX, position)
+
+                intent.putStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS, mPhotoPickerAdapter.pickerPaths)
+                intent.putExtra(PhotoViewActivity.ARG_PICKER_COUNT, mPickerCount)
+
+                startActivityForResult(intent, REQUEST_PHOTO_VIEW)
+            }
         }
         mPhotoPickerAdapter.setOnSelectImageCallback(object : PhotoPickerAdapter.OnSelectChangeCallback {
             override fun selectChange(selectCount: Int) {
                 setToolbarTitle(selectCount, mSelectFolderName)
             }
         })
-        val fName = mFolderName!!.toTypedArray()
+        val fName = mFolderName.toTypedArray()
         fName[0] = "全部"
         mFolderDialog = AlertDialog.Builder(this)
-                .setItems(fName) { dialog, which ->
-                    mSelectFolderName = if (which == 0) {
-                        "*"
-                    } else {
-                        mFolderName!![which]
-                    }
-                    mFolderPath?.let {
-                        mPhotoPickerAdapter.setData(it[mSelectFolderName]!!)
-                    }
-                    mPhotoPickerAdapter.notifyDataSetChanged()
-                    setToolbarTitle(mPhotoPickerAdapter.pickerPaths!!.size, mSelectFolderName)
+            .setItems(fName) { _, which ->
+                mSelectFolderName = if (which == 0) {
+                    "*"
+                } else {
+                    mFolderName[which]
                 }
-                .create()
+                mPhotoPickerAdapter.setData(mFolderPath[mSelectFolderName]!!)
+
+                mPhotoPickerAdapter.notifyDataSetChanged()
+                setToolbarTitle(mPhotoPickerAdapter.pickerPaths!!.size, mSelectFolderName)
+            }
+            .create()
+    }
+
+    private val mOnClickListener = View.OnClickListener { v ->
+        if (v.id == R.id.btn_folder) {
+            mFolderDialog!!.show()
+        } else if (v.id == R.id.btn_preview) {
+            val intent = Intent(this@PhotoPickerActivity, PhotoViewActivity::class.java)
+
+            intent.putStringArrayListExtra(PhotoViewActivity.ARG_PHOTOS, mPhotoPickerAdapter.pickerPaths)
+            intent.putExtra(PhotoViewActivity.ARG_CURRENT_INDEX, 0)
+
+            intent.putStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS, mPhotoPickerAdapter.pickerPaths)
+            intent.putExtra(PhotoViewActivity.ARG_PICKER_COUNT, mPickerCount)
+
+            startActivityForResult(intent, REQUEST_PHOTO_VIEW)
+        }
     }
 
     private fun setToolbarTitle(selectCount: Int, folderName: String) {
@@ -164,17 +167,13 @@ class PhotoPickerActivity : AppCompatActivity() {
         if (folderName == "*") {
             folderName = "全部"
         }
-        if (mPickerCount != 1) {
-            title = String.format("%d/%d", selectCount, mPickerCount)//标题
+        title = if (mPickerCount != 1) {
+            String.format("%d/%d", selectCount, mPickerCount)//标题
         } else {
-            title = "图片选择"//标题
+            "图片选择"//标题
         }
-        btnFolder!!.text = folderName
-        if (selectCount > 0) {
-            btnPreview!!.isEnabled = true
-        } else {
-            btnPreview!!.isEnabled = false
-        }
+        btn_folder.text = folderName
+        btn_preview.isEnabled = selectCount > 0
     }
 
     private fun getImages() {
@@ -186,10 +185,10 @@ class PhotoPickerActivity : AppCompatActivity() {
             e.printStackTrace()
             if (e.message?.startsWith("Permission Denial") == true) {
                 AlertDialog.Builder(this)
-                        .setTitle("警告")
-                        .setMessage("没有外部存储目录读取权限")
-                        .setPositiveButton("关闭") { dialog, which -> finish() }
-                        .show()
+                    .setTitle("警告")
+                    .setMessage("没有外部存储目录读取权限")
+                    .setPositiveButton("关闭") { _, _ -> finish() }
+                    .show()
             } else {
                 Toast.makeText(this, "图片数据获取失败", Toast.LENGTH_SHORT).show()
             }
@@ -225,43 +224,43 @@ class PhotoPickerActivity : AppCompatActivity() {
 
                 do {
                     val img = PhotoPicker(
-                            cursor.getString(columnIndex1),
-                            cursor.getString(columnIndex2),
-                            cursor.getInt(columnIndex3),
-                            cursor.getDouble(columnIndex4),
-                            cursor.getDouble(columnIndex5),
-                            cursor.getInt(columnIndex6),
-                            cursor.getInt(columnIndex7),
-                            cursor.getInt(columnIndex8),
-                            cursor.getString(columnIndex9),
-                            cursor.getString(columnIndex10),
+                        cursor.getString(columnIndex1),
+                        cursor.getString(columnIndex2),
+                        cursor.getInt(columnIndex3),
+                        cursor.getDouble(columnIndex4),
+                        cursor.getDouble(columnIndex5),
+                        cursor.getInt(columnIndex6),
+                        cursor.getInt(columnIndex7),
+                        cursor.getInt(columnIndex8),
+                        cursor.getString(columnIndex9),
+                        cursor.getString(columnIndex10),
 
-                            cursor.getLong(columnIndex11),
+                        cursor.getLong(columnIndex11),
 
-                            cursor.getString(columnIndex12),
-                            cursor.getLong(columnIndex13),
-                            cursor.getString(columnIndex14),
-                            cursor.getString(columnIndex15),
-                            cursor.getLong(columnIndex16),
-                            cursor.getLong(columnIndex17),
-                            cursor.getString(columnIndex18),
-                            cursor.getInt(columnIndex19),
-                            cursor.getInt(columnIndex20)
+                        cursor.getString(columnIndex12),
+                        cursor.getLong(columnIndex13),
+                        cursor.getString(columnIndex14),
+                        cursor.getString(columnIndex15),
+                        cursor.getLong(columnIndex16),
+                        cursor.getLong(columnIndex17),
+                        cursor.getString(columnIndex18),
+                        cursor.getInt(columnIndex19),
+                        cursor.getInt(columnIndex20)
                     )
 
 
                     val index2 = img.data!!.lastIndexOf("/")
                     val index1 = img.data!!.substring(0, index2).lastIndexOf("/")
                     val folderName = img.data!!.substring(index1 + 1, index2)
-                    if (!mFolderName!!.contains(folderName)) {
-                        mFolderName!!.add(folderName)
+                    if (!mFolderName.contains(folderName)) {
+                        mFolderName.add(folderName)
                     }
                     val imgs: MutableList<PhotoPicker>?
-                    if (mFolderPath!!.containsKey(folderName)) {
-                        imgs = mFolderPath!![folderName]
+                    if (mFolderPath.containsKey(folderName)) {
+                        imgs = mFolderPath[folderName]
                     } else {
                         imgs = mutableListOf()
-                        mFolderPath!![folderName] = imgs
+                        mFolderPath[folderName] = imgs
                     }
                     imgs!!.add(img)
                     images.add(img)
@@ -269,7 +268,7 @@ class PhotoPickerActivity : AppCompatActivity() {
             }
             cursor.close()
         }
-        mFolderPath!!["*"] = images
+        mFolderPath["*"] = images
     }
 
     /**
@@ -291,19 +290,18 @@ class PhotoPickerActivity : AppCompatActivity() {
         if (i == android.R.id.home) {
             finish()
         } else if (i == R.id.menu_ok) {
+            val uris = mPhotoPickerAdapter.pickerUris
             val imgs = mPhotoPickerAdapter.pickerPaths
             if (!imgs.isNullOrEmpty()) {
                 val intent = Intent()
-                intent.putStringArrayListExtra(ARG_RESULT, mPhotoPickerAdapter.pickerPaths)
+                intent.putParcelableArrayListExtra(ARG_RESULT_URI, uris)
+                intent.putStringArrayListExtra(ARG_RESULT, imgs)
                 setResult(Activity.RESULT_OK, intent)
                 finish()
             } else {
                 Toast.makeText(this, "至少选择一张图片", Toast.LENGTH_SHORT).show()
             }
-        } /*else if (i == R.id.menu_folder) {
-            mFolderDialog.show();
-        }*/
-        else if (i == R.id.menu_system) {
+        } else if (i == R.id.menu_system) {
             val intent = Intent(Intent.ACTION_GET_CONTENT)
             intent.type = "image/*"
             intent.addCategory(Intent.CATEGORY_OPENABLE)
@@ -317,6 +315,7 @@ class PhotoPickerActivity : AppCompatActivity() {
             when (requestCode) {
                 REQUEST_FOLDER -> {
                     val path = ArrayList<String>()
+                    val uri = ArrayList<Uri>()
                     val intent = Intent()
                     val p = PhotoFileUtil.getFileAbsolutePath(this, data!!.data!!)
 
@@ -326,14 +325,16 @@ class PhotoPickerActivity : AppCompatActivity() {
 
                     if (mMimeType.contains(mimeTypeMap.getMimeTypeFromExtension(suffix))) {
                         path.add(p)
+                        uri.add(data.data)
                         intent.putStringArrayListExtra(ARG_RESULT, path)
+                        intent.putParcelableArrayListExtra(ARG_RESULT_URI, uri)
                         setResult(Activity.RESULT_OK, intent)
                         finish()
                     } else {
                         Toast.makeText(this, "非图片类型文件(jpg、png、gif)", Toast.LENGTH_SHORT).show()
                     }
                 }
-                REQUEST_photo_VIEW -> {
+                REQUEST_PHOTO_VIEW -> {
                     val pickerPath = data!!.getStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS)
                     mPhotoPickerAdapter.pickerPaths = pickerPath
                     mPhotoPickerAdapter.notifyDataSetChanged()
@@ -344,9 +345,10 @@ class PhotoPickerActivity : AppCompatActivity() {
     }
 
     companion object {
-        private val REQUEST_photo_VIEW = 434
+        private val REQUEST_PHOTO_VIEW = 434
         private val REQUEST_FOLDER = 525
         val ARG_RESULT = "RESULT"//结果图片路径集合
+        val ARG_RESULT_URI = "RESULT_URI"//结果图片路径Uri集合
         val ARG_PICKER_COUNT = "PICKER_COUNT"//所选图片数量
     }
 }

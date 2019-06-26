@@ -16,14 +16,13 @@ import com.github2136.photopicker.other.PhotoSPUtil
 import java.io.File
 
 /**
- * 图片拍摄<br></br>
- * 默认存储只外部私有图片目录下，或在application中添加name为photo_picker_path的&lt;meta&#62;，私有目录下的图片不能添加到媒体库中，选择图片时将会无法查看到<br></br>
- * ARG_FILE_PATH图片保存路径目录，不包括文件名，优先级比photo_picker_path高，可不填<br></br>
- * ARG_RESULT返回的图片物理路径
- * ARG_RESULT_URI返回的图片URI路径
+ *      图片拍摄
+ *      默认存储只外部私有图片目录下，或在application中添加name为photo_picker_path的&lt;meta&#62;，私有目录下的图片不能添加到媒体库中，选择图片时将会无法查看到
+ *      ARG_FILE_PATH图片保存路径目录，不包括文件名，优先级比photo_picker_path高，可不填
+ *      intent.data返回图片URI，可使用PhotoFileUtil.getFileAbsolutePath(this, intent.data)将URI转换为物理路径
  */
 class CaptureActivity : AppCompatActivity() {
-    private var mSpUtil: PhotoSPUtil? = null
+    private val mSpUtil by lazy { PhotoSPUtil.getInstance(this) }
 
     private val photoPath: String?
         get() {
@@ -50,7 +49,6 @@ class CaptureActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_capture)
-        mSpUtil = PhotoSPUtil.getInstance(this)
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         val filePath: String
         val file: File
@@ -63,9 +61,8 @@ class CaptureActivity : AppCompatActivity() {
         if (!file.parentFile.exists()) {
             file.parentFile.mkdirs()
         }
-        val mShootUri = getUri(file)
-        mSpUtil!!.edit()
-            .putValue(KEY_FILE_PATH, file.path)
+        val mShootUri = insert(file)
+        mSpUtil.edit()
             .putValue(KEY_FILE_URI, mShootUri.toString())
             .apply()
         intent.putExtra(MediaStore.EXTRA_OUTPUT, mShootUri)
@@ -75,46 +72,29 @@ class CaptureActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
             val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
-            val filePath = mSpUtil!!.getString(KEY_FILE_PATH)
-            val fileUri = mSpUtil!!.getString(KEY_FILE_URI)
-            val f = File(filePath)
-            val contentUri = getUri(f)
+            val contentUri = Uri.parse(mSpUtil.getString(KEY_FILE_URI))
             mediaScanIntent.data = contentUri
             this.sendBroadcast(mediaScanIntent)
             val result = Intent()
-            result.putExtra(ARG_RESULT, filePath)
-            result.putExtra(ARG_RESULT_URI, fileUri)
+            result.data = contentUri
             setResult(Activity.RESULT_OK, result)
         }
         finish()
     }
 
     /**
-     * 返回不同的图片uri
-     *
-     * @param file
-     * @return
+     * 返回图片uri
      */
-    private fun getUri(file: File): Uri? {
-        val uri: Uri?
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            uri = Uri.fromFile(file)
-        } else {
-            val contentValues = ContentValues(1)
-            contentValues.put(MediaStore.Images.Media.DATA, file.absolutePath)
-            uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-        }
-        return uri
+    private fun insert(file: File): Uri? {
+        val contentValues = ContentValues(1)
+        contentValues.put(MediaStore.Images.Media.DATA, file.absolutePath)
+        return contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
     }
 
     companion object {
-        val ARG_RESULT = "RESULT"
-        val ARG_RESULT_URI = "RESULT_URI"
-        val ARG_FILE_PATH = "FILE_PATH"//图片保存路径
-
+        val ARG_FILE_PATH = "FILE_PATH"//图片保存目录
         private val REQUEST_CAPTURE = 706
-        //文件路径
-        private val KEY_FILE_PATH = "CAPTURE_FILE_PATH"
+        //文件Uri
         private val KEY_FILE_URI = "CAPTURE_FILE_URI"
     }
 }

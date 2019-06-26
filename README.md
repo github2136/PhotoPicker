@@ -22,7 +22,8 @@
 
     **返回参数**  
 
-    * **ARG_RESULT**返回的结果  
+    * **ARG_RESULT**返回的图片路径 
+    * **ARG_RESULT_URI**返回图片的URI   
 
 * **PhotoViewActivity**图片浏览（如果传入已选图片的路径，则可以在图片浏览时修改选择的结果）  
     **请求参数**  
@@ -33,7 +34,7 @@
     * **ARG_PICKER_COUNT**可选图片数量  
 
     **返回参数**  
-    * **ARG_PICKER_PATHS**返回的结果  
+    * **ARG_PICKER_PATHS**返回的结果（物理路径）  
 
     > 如果ARG_PICKER_PATHS不为空则会在下方显示单选框选择图片 返回路径的key为ARG_PICKER_PATHS  
 
@@ -44,7 +45,7 @@
 
     **返回参数**  
 
-    * **ARG_RESULT**返回的结果  
+    * **intent.data**返回的结果（URI）  
 
 * **CropActivity**裁剪图片（默认存储在项目私有目录的Pictures下，或在application中添加name为photo_picker_path的&lt;meta&#62;，在Android6.0以上必须使用分享方式传入uri路径，而不是使用直接的文件路径）   
     **请求参数** 
@@ -56,5 +57,5 @@
     * **ARG_OUTPUT_IMG**保存目录可以为空
 
     返回参数  
-    **ARG_RESULT**返回的结果  
+    **intent.data**返回的结果返回的结果（URI）  
 

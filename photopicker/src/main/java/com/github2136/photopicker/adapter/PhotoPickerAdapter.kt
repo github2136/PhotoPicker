@@ -2,6 +2,8 @@ package com.github2136.photopicker.adapter
 
 import android.content.Context
 import android.graphics.Color
+import android.net.Uri
+import android.provider.MediaStore
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -18,18 +20,17 @@ import java.util.*
  */
 
 class PhotoPickerAdapter(val context: Context, list: MutableList<PhotoPicker>, private val mSelectCount: Int) :
-        PhotoBaseAdapter<PhotoPicker>(list) {
-    var pickerPaths: ArrayList<String>? = null
-    private val mViewSize: Int
+    PhotoBaseAdapter<PhotoPicker>(list) {
+    var pickerUris: ArrayList<Uri> = arrayListOf()
+    var pickerPaths: ArrayList<String> = arrayListOf()
+    private val mViewSize: Int = (context.resources.displayMetrics.widthPixels - 5 * 4) / 3
     private val mImgSize: Int
     private val layoutParams: RelativeLayout.LayoutParams
     private var mOnSelectChangeCallback: OnSelectChangeCallback? = null
 
     init {
-        mViewSize = (context.resources.displayMetrics.widthPixels - 5 * 4) / 3
         mImgSize = mViewSize
         layoutParams = RelativeLayout.LayoutParams(mViewSize, mViewSize)
-        pickerPaths = arrayListOf()
     }
 
     fun setOnSelectImageCallback(onSelectImageCallback: OnSelectChangeCallback) {
@@ -54,7 +55,9 @@ class PhotoPickerAdapter(val context: Context, list: MutableList<PhotoPicker>, p
         } else {
             loader.loadAnimatedGifThumbnail(context, mImgSize, mImgSize, ivImage, photoPicker.data!!)
         }
-        if (pickerPaths!!.contains(photoPicker.data!!)) {
+        val uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, photoPicker._id!!.toString())
+        val path = photoPicker.data!!
+        if (pickerPaths.contains(path)) {
             ivCheck!!.setImageResource(R.drawable.ic_photo_check_box)
             ivCheck.setBackgroundResource(R.drawable.sha_picker_check_bg)
         } else {
@@ -62,13 +65,15 @@ class PhotoPickerAdapter(val context: Context, list: MutableList<PhotoPicker>, p
             ivCheck.setBackgroundColor(Color.TRANSPARENT)
         }
         flCheck!!.setOnClickListener {
-            if (pickerPaths!!.contains(photoPicker.data!!)) {
-                pickerPaths!!.remove(photoPicker.data!!)
+            if (pickerPaths.contains(path)) {
+                pickerPaths.remove(path)
+                pickerUris.remove(uri)
                 ivCheck.setImageResource(R.drawable.ic_photo_check_box_outline)
                 ivCheck.setBackgroundColor(Color.TRANSPARENT)
             } else {
-                if (mSelectCount > pickerPaths!!.size) {
-                    pickerPaths!!.add(photoPicker.data!!)
+                if (mSelectCount > pickerPaths.size) {
+                    pickerPaths.add(path)
+                    pickerUris.add(uri)
                     ivCheck.setImageResource(R.drawable.ic_photo_check_box)
                     ivCheck.setBackgroundResource(R.drawable.sha_picker_check_bg)
                 } else {
@@ -76,14 +81,15 @@ class PhotoPickerAdapter(val context: Context, list: MutableList<PhotoPicker>, p
                 }
             }
             if (mOnSelectChangeCallback != null) {
-                mOnSelectChangeCallback!!.selectChange(pickerPaths!!.size)
+                mOnSelectChangeCallback!!.selectChange(pickerPaths.size)
             }
         }
     }
 
 
     fun clearSelectPaths() {
-        pickerPaths = arrayListOf()
+        pickerPaths.clear()
+        pickerUris.clear()
     }
 
     fun getItem() = list

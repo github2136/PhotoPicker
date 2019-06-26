@@ -19,16 +19,16 @@ import com.github2136.photopicker.other.PhotoSPUtil
 import java.io.File
 
 /**
- * 图片裁剪<br></br>
- * ARG_CROP_IMG 需要裁剪的图片路径<br></br>
- * ARG_ASPECT_X/ARG_ASPECT_Y裁剪框比例<br></br>
- * ARG_OUTPUT_X/ARG_OUTPUT_Y图片输出尺寸<br></br>
- * 默认存储只外部私有图片目录下，或在application中添加name为photo_picker_path的&lt;meta&#62;，私有目录下的图片不能添加到媒体库中，选择图片时将会无法查看到<br></br>
- * OUTPUT_IMG图片保存路径目录，不包括文件名，优先级比photo_picker_path高，可不填<br></br>
- * ARG_RESULT返回的图片路径
+ *      图片裁剪
+ *      ARG_CROP_IMG 需要裁剪的图片URI
+ *      ARG_ASPECT_X/ARG_ASPECT_Y裁剪框比例
+ *      ARG_OUTPUT_X/ARG_OUTPUT_Y图片输出尺寸
+ *      默认存储只外部私有图片目录下，或在application中添加name为photo_picker_path的&lt;meta&#62;，私有目录下的图片不能添加到媒体库中，选择图片时将会无法查看到
+ *      OUTPUT_IMG图片保存路径目录，不包括文件名，优先级比photo_picker_path高，可不填
+ *      intent.data返回图片URI，可使用PhotoFileUtil.getFileAbsolutePath(this, intent.data)将URI转换为物理路径
  */
 class CropActivity : AppCompatActivity() {
-    private var mSpUtil: PhotoSPUtil? = null
+    private val mSpUtil: PhotoSPUtil by lazy { PhotoSPUtil.getInstance(this) }
 
     private val photoPath: String?
         get() {
@@ -55,7 +55,6 @@ class CropActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_crop)
-        mSpUtil = PhotoSPUtil.getInstance(this)
         if (!(intent.hasExtra(ARG_CROP_IMG) &&
                 intent.hasExtra(ARG_ASPECT_X) &&
                 intent.hasExtra(ARG_ASPECT_Y) &&
@@ -64,14 +63,14 @@ class CropActivity : AppCompatActivity() {
             Toast.makeText(this, "缺少参数", Toast.LENGTH_SHORT).show()
             finish()
         } else {
-            val img = intent.getStringExtra(ARG_CROP_IMG)
+            val img = intent.getParcelableExtra<Uri>(ARG_CROP_IMG)
             val aspX = intent.getIntExtra(ARG_ASPECT_X, 0)
             val aspY = intent.getIntExtra(ARG_ASPECT_Y, 0)
             val outX = intent.getIntExtra(ARG_OUTPUT_X, 0)
             val outY = intent.getIntExtra(ARG_OUTPUT_Y, 0)
             val outImg: File
-            if (intent.hasExtra(ARG_OUTPUT_IMG)) {
-                val out = intent.getStringExtra(ARG_OUTPUT_IMG)
+            if (intent.hasExtra(ARG_FILE_PATH)) {
+                val out = intent.getStringExtra(ARG_FILE_PATH)
                 outImg = File(PhotoFileUtil.getExternalStorageRootPath() + File.separator + out, PhotoFileUtil.createFileName(".jpg"))
             } else {
                 outImg = File(photoPath, PhotoFileUtil.createFileName(".jpg"))
@@ -79,12 +78,16 @@ class CropActivity : AppCompatActivity() {
             if (!outImg.parentFile.exists()) {
                 outImg.parentFile.mkdirs()
             }
-            mSpUtil!!.edit().putValue(KEY_FILE_NAME, outImg.path).apply()
+            val mOutUri = insert(outImg)
+
+            mSpUtil.edit()
+                .putValue(KEY_FILE_URI, mOutUri.toString())
+                .apply()
             val intent = Intent("com.android.camera.action.CROP")
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
                 intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
             }
-            intent.setDataAndType(Uri.parse(img), "image/*")
+            intent.setDataAndType(img, "image/*")
             intent.putExtra("crop", "true")
             intent.putExtra("aspectX", aspX)
             intent.putExtra("aspectY", aspY)
@@ -92,7 +95,7 @@ class CropActivity : AppCompatActivity() {
             intent.putExtra("outputY", outY)
             intent.putExtra("scale", true)// 如果选择的图小于裁剪大小则进行放大
             intent.putExtra("scaleUpIfNeeded", true)// 如果选择的图小于裁剪大小则进行放大
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, getUri(outImg))
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, mOutUri)
             intent.putExtra("return-data", false)
             intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString())
             intent.putExtra("noFaceDetection", true) // no face detection
@@ -108,45 +111,34 @@ class CropActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
             val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
-            val fileName = mSpUtil!!.getString(KEY_FILE_NAME)
-            val f = File(fileName)
-            val contentUri = getUri(f)
+
+            val contentUri = Uri.parse(mSpUtil.getString(KEY_FILE_URI))
             mediaScanIntent.data = contentUri
             this.sendBroadcast(mediaScanIntent)
             val result = Intent()
-            result.putExtra(ARG_RESULT, fileName)
+            result.data = contentUri
             setResult(Activity.RESULT_OK, result)
         }
         finish()
     }
 
     /**
-     * 返回不同的图片uri
-     *
-     * @param file
-     * @return
+     * 返回图片uri
      */
-    private fun getUri(file: File): Uri? {
-        val uri: Uri?
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            uri = Uri.fromFile(file)
-        } else {
-            val contentValues = ContentValues(1)
-            contentValues.put(MediaStore.Images.Media.DATA, file.absolutePath)
-            uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-        }
-        return uri
+    private fun insert(file: File): Uri? {
+        val contentValues = ContentValues(1)
+        contentValues.put(MediaStore.Images.Media.DATA, file.absolutePath)
+        return contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
     }
 
     companion object {
-        val ARG_RESULT = "RESULT"
-        val ARG_CROP_IMG = "CROP_IMG"
+        val ARG_CROP_IMG = "CROP_IMG"//需要裁剪地图片URI
         val ARG_ASPECT_X = "ASPECT_X"
         val ARG_ASPECT_Y = "ASPECT_Y"
         val ARG_OUTPUT_X = "OUTPUT_X"
         val ARG_OUTPUT_Y = "OUTPUT_Y"
-        val ARG_OUTPUT_IMG = "OUTPUT_IMG"
+        val ARG_FILE_PATH = "FILE_PATH"//图片保存目录
         private val REQUEST_CROP = 742
-        private val KEY_FILE_NAME = "CROP_FILE_NAME"
+        private val KEY_FILE_URI = "CROP_FILE_URI"
     }
 }
