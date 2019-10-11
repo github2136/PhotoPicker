@@ -1,23 +1,23 @@
 package com.github2136.photo
 
+import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.FileProvider
+import androidx.collection.ArrayMap
 import com.github2136.photopicker.activity.CaptureActivity
 import com.github2136.photopicker.activity.CropActivity
 import com.github2136.photopicker.activity.PhotoPickerActivity
 import com.github2136.photopicker.activity.PhotoViewActivity
 import com.github2136.photopicker.other.PhotoFileUtil
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.File
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
-    internal var selectPaths: ArrayList<String> = ArrayList()
+    val permissionUtil by lazy { PermissionUtil(this) }
+    var selectPaths: ArrayList<String> = ArrayList()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
 
         im_capture.setOnClickListener {
             val intent = Intent(this@MainActivity, CaptureActivity::class.java)
-            intent.putExtra(CaptureActivity.ARG_FILE_PATH, "fffff")
+//            intent.putExtra(CaptureActivity.ARG_FILE_PATH, "Photo")
             startActivityForResult(intent, 2)
         }
 
@@ -53,6 +53,9 @@ class MainActivity : AppCompatActivity() {
             intent.putStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS, selectPaths)
             startActivityForResult(intent, 5)
         }
+        val permission = ArrayMap<String, String>()
+        permission[Manifest.permission.WRITE_EXTERNAL_STORAGE] = "文件写入"
+        permissionUtil.getPermission(permission) { }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -66,7 +69,7 @@ class MainActivity : AppCompatActivity() {
                         val s = result[i]
                         Log.e("path", s)
                     }
-                    val uri = data!!.getParcelableArrayListExtra<Uri>(PhotoPickerActivity.ARG_RESULT_URI)
+                    val uri = data.getParcelableArrayListExtra<Uri>(PhotoPickerActivity.ARG_RESULT_URI)
                     for (i in uri.indices) {
                         val s = uri[i]
                         Log.e("path", s.toString())
@@ -100,5 +103,15 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        permissionUtil.onRestart()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        permissionUtil.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 }
