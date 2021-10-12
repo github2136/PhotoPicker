@@ -248,10 +248,7 @@ class PhotoPickerActivity : AppCompatActivity() {
                         cursor.getInt(columnIndex20)
                     )
 
-
-                    val index2 = img.data!!.lastIndexOf("/")
-                    val index1 = img.data!!.substring(0, index2).lastIndexOf("/")
-                    val folderName = img.data!!.substring(index1 + 1, index2)
+                    val folderName = img.bucket_display_name
                     if (!mFolderName.contains(folderName)) {
                         mFolderName.add(folderName)
                     }
@@ -313,7 +310,7 @@ class PhotoPickerActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
-                REQUEST_FOLDER -> {
+                REQUEST_FOLDER     -> {
                     val path = ArrayList<String>()
                     val uri = ArrayList<Uri>()
                     val intent = Intent()

@@ -69,7 +69,7 @@ data class PhotoPicker(
          * bucket显示的名字自动计算只读列
          * <P>Type: TEXT</P>
          */
-        var bucket_display_name: String?,
+        var bucket_display_name: String,
         /**
          * The unique ID for a row.
          * 主键ID
