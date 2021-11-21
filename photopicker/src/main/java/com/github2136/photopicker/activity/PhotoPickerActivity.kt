@@ -180,7 +180,7 @@ class PhotoPickerActivity : AppCompatActivity() {
         val contentResolver = contentResolver
         var cursor: Cursor? = null
         try {
-            cursor = contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null)
+            cursor = contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, MediaStore.Images.ImageColumns.DATE_TAKEN + " desc")
         } catch (e: Exception) {
             e.printStackTrace()
             if (e.message?.startsWith("Permission Denial") == true) {
