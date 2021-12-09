@@ -233,7 +233,7 @@ class PhotoPickerActivity : AppCompatActivity() {
                         cursor.getInt(columnIndex7),
                         cursor.getInt(columnIndex8),
                         cursor.getString(columnIndex9),
-                        cursor.getString(columnIndex10),
+                        cursor.getString(columnIndex10) ?: "null",
 
                         cursor.getLong(columnIndex11),
 
