@@ -5,6 +5,8 @@ import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
@@ -32,13 +34,13 @@ import java.util.*
  *      ARG_RESULT_URI返回图片的URI
  */
 class PhotoPickerActivity : AppCompatActivity() {
-    private var mFolderName: MutableList<String> = mutableListOf()//文件夹名称
-    private var mFolderPath: MutableMap<String, MutableList<PhotoPicker>> = HashMap()//文件夹名称对应图片
-    private var mPickerCount: Int = 0//可选择图片数量
+    private var mFolderName: MutableList<String> = mutableListOf() //文件夹名称
+    private var mPickerCount: Int = 0 //可选择图片数量
     private lateinit var mPhotoPickerAdapter: PhotoPickerAdapter
     private val mMimeType = HashSet<String>()
-    private var mFolderDialog: AlertDialog? = null
+    private lateinit var mFolderDialog: AlertDialog
     private lateinit var mSelectFolderName: String
+    val handle = Handler(Looper.getMainLooper())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +61,7 @@ class PhotoPickerActivity : AppCompatActivity() {
         mMimeType.add("image/gif")
         if (mPickerCount == 1) {
             btn_preview.visibility = View.GONE
+
         }
         // getSupportActionBar().setToolbarTitle("标题");
         // getSupportActionBar().setSubtitle("副标题");
@@ -90,12 +93,15 @@ class PhotoPickerActivity : AppCompatActivity() {
         rvImages.addItemDecoration(selectImageItemDecoration)
 
         mFolderName = mutableListOf()
-        mFolderName.add("*")//表示全部
-        mFolderPath = HashMap()
+        mFolderName.add("*") //表示全部
 
-        getImages()
-        mPhotoPickerAdapter = PhotoPickerAdapter(this, mFolderPath["*"]!!, mPickerCount)
+        getBucketDisplayName()
 
+        mPhotoPickerAdapter = PhotoPickerAdapter(this, mPickerCount)
+        mPhotoPickerAdapter.loadMore = {
+            mPhotoPickerAdapter.loading.value = true
+            getImages()
+        }
         rvImages.adapter = mPhotoPickerAdapter
         mPhotoPickerAdapter.setOnItemClickListener { position ->
             if (mPickerCount == 1) {
@@ -129,6 +135,7 @@ class PhotoPickerActivity : AppCompatActivity() {
                 setToolbarTitle(selectCount, mSelectFolderName)
             }
         })
+        getImages()
         val fName = mFolderName.toTypedArray()
         fName[0] = "全部"
         mFolderDialog = AlertDialog.Builder(this)
@@ -138,17 +145,19 @@ class PhotoPickerActivity : AppCompatActivity() {
                 } else {
                     mFolderName[which]
                 }
-                mPhotoPickerAdapter.setData(mFolderPath[mSelectFolderName]!!)
-
+                mPhotoPickerAdapter.pageIndex = 0
+                mPhotoPickerAdapter.refreshing.value = true
+                mPhotoPickerAdapter.complete = false
+                getImages()
                 mPhotoPickerAdapter.notifyDataSetChanged()
-                setToolbarTitle(mPhotoPickerAdapter.pickerPaths!!.size, mSelectFolderName)
+                setToolbarTitle(mPhotoPickerAdapter.pickerPaths.size, mSelectFolderName)
             }
             .create()
     }
 
     private val mOnClickListener = View.OnClickListener { v ->
         if (v.id == R.id.btn_folder) {
-            mFolderDialog!!.show()
+            mFolderDialog.show()
         } else if (v.id == R.id.btn_preview) {
             val intent = Intent(this@PhotoPickerActivity, PhotoViewActivity::class.java)
 
@@ -168,19 +177,108 @@ class PhotoPickerActivity : AppCompatActivity() {
             folderName = "全部"
         }
         title = if (mPickerCount != 1) {
-            String.format("%d/%d", selectCount, mPickerCount)//标题
+            String.format("%d/%d", selectCount, mPickerCount) //标题
         } else {
-            "图片选择"//标题
+            "图片选择" //标题
         }
         btn_folder.text = folderName
         btn_preview.isEnabled = selectCount > 0
+    }
+
+    /**
+     * 查询所有文件夹
+     */
+    private fun getBucketDisplayName() {
+        val contentResolver = contentResolver
+        var cursor: Cursor? = null
+        try {
+            cursor = contentResolver.query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                null,
+                MediaStore.Images.ImageColumns.SIZE + " > 0 and " + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME + " is not null) group by (" + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,
+                null,
+                MediaStore.Images.ImageColumns.DATE_TAKEN + " desc"
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            if (e.message?.startsWith("Permission Denial") == true) {
+                AlertDialog.Builder(this)
+                    .setTitle("警告")
+                    .setMessage("没有外部存储目录读取权限")
+                    .setPositiveButton("关闭") { _, _ -> finish() }
+                    .show()
+            } else {
+                Toast.makeText(this, "图片数据获取失败", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                val columnIndex1 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DESCRIPTION)
+                val columnIndex2 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.PICASA_ID)
+                val columnIndex3 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.IS_PRIVATE)
+                val columnIndex4 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.LATITUDE)
+                val columnIndex5 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.LONGITUDE)
+                val columnIndex6 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATE_TAKEN)
+                val columnIndex7 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.ORIENTATION)
+                val columnIndex8 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.MINI_THUMB_MAGIC)
+                val columnIndex9 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.BUCKET_ID)
+                val columnIndex10 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME)
+
+                val columnIndex11 = cursor.getColumnIndex(MediaStore.MediaColumns._ID)
+
+                val columnIndex12 = cursor.getColumnIndex(MediaStore.MediaColumns.DATA)
+                val columnIndex13 = cursor.getColumnIndex(MediaStore.MediaColumns.SIZE)
+                val columnIndex14 = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
+                val columnIndex15 = cursor.getColumnIndex(MediaStore.MediaColumns.TITLE)
+                val columnIndex16 = cursor.getColumnIndex(MediaStore.MediaColumns.DATE_ADDED)
+                val columnIndex17 = cursor.getColumnIndex(MediaStore.MediaColumns.DATE_MODIFIED)
+                val columnIndex18 = cursor.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE)
+                val columnIndex19 = cursor.getColumnIndex(MediaStore.MediaColumns.WIDTH)
+                val columnIndex20 = cursor.getColumnIndex(MediaStore.MediaColumns.HEIGHT)
+
+                do {
+                    val img = PhotoPicker(
+                        cursor.getString(columnIndex1),
+                        cursor.getString(columnIndex2),
+                        cursor.getInt(columnIndex3),
+                        cursor.getDouble(columnIndex4),
+                        cursor.getDouble(columnIndex5),
+                        cursor.getInt(columnIndex6),
+                        cursor.getInt(columnIndex7),
+                        cursor.getInt(columnIndex8),
+                        cursor.getString(columnIndex9),
+                        cursor.getString(columnIndex10),
+
+                        cursor.getLong(columnIndex11),
+
+                        cursor.getString(columnIndex12),
+                        cursor.getLong(columnIndex13),
+                        cursor.getString(columnIndex14),
+                        cursor.getString(columnIndex15),
+                        cursor.getLong(columnIndex16),
+                        cursor.getLong(columnIndex17),
+                        cursor.getString(columnIndex18),
+                        cursor.getInt(columnIndex19),
+                        cursor.getInt(columnIndex20)
+                    )
+                    mFolderName.add(img.bucket_display_name)
+                } while (cursor.moveToNext())
+            }
+            cursor.close()
+        }
     }
 
     private fun getImages() {
         val contentResolver = contentResolver
         var cursor: Cursor? = null
         try {
-            cursor = contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Images.ImageColumns.SIZE + " > 0", null, MediaStore.Images.ImageColumns.DATE_TAKEN + " desc")
+            val folder = if (mSelectFolderName != "*") " and " + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME + " = '$mSelectFolderName' " else ""
+            cursor = contentResolver.query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null,
+                MediaStore.Images.ImageColumns.SIZE + " > 0 and " + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME + " is not null" + folder,
+                null, MediaStore.Images.ImageColumns.DATE_TAKEN + " desc limit ${mPhotoPickerAdapter.pageIndex * mPhotoPickerAdapter.pageCount} , ${mPhotoPickerAdapter.pageCount} "
+            )
         } catch (e: Exception) {
             e.printStackTrace()
             if (e.message?.startsWith("Permission Denial") == true) {
@@ -247,33 +345,63 @@ class PhotoPickerActivity : AppCompatActivity() {
                         cursor.getInt(columnIndex19),
                         cursor.getInt(columnIndex20)
                     )
-
-                    val folderName = img.bucket_display_name
-                    if (!mFolderName.contains(folderName)) {
-                        mFolderName.add(folderName)
-                    }
-                    val imgs: MutableList<PhotoPicker>?
-                    if (mFolderPath.containsKey(folderName)) {
-                        imgs = mFolderPath[folderName]
-                    } else {
-                        imgs = mutableListOf()
-                        mFolderPath[folderName] = imgs
-                    }
-                    imgs!!.add(img)
                     images.add(img)
                 } while (cursor.moveToNext())
             }
             cursor.close()
         }
-        mFolderPath["*"] = images
+        if (mPhotoPickerAdapter.pageIndex == 0) {
+            setData(images)
+        } else {
+            appendData(images)
+        }
     }
 
+    /**
+     * 设置首页数据
+     */
+    fun setData(list: MutableList<PhotoPicker>) {
+        handle.post {
+            mPhotoPickerAdapter.pageCount = mPhotoPickerAdapter.pageCount
+            mPhotoPickerAdapter.pageIndex = mPhotoPickerAdapter.pageIndex + 1
+            mPhotoPickerAdapter.refreshing.value = false
+            mPhotoPickerAdapter.result.value = true
+            if (list.size != mPhotoPickerAdapter.pageCount) {
+                //加载完成
+                mPhotoPickerAdapter.complete = true
+            }
+            mPhotoPickerAdapter.setData(list)
+        }
+    }
+
+    /**
+     * 加载更多数据
+     */
+    fun appendData(list: MutableList<PhotoPicker>) {
+        handle.post {
+            mPhotoPickerAdapter.pageIndex = mPhotoPickerAdapter.pageIndex + 1
+            mPhotoPickerAdapter.loading.value = false
+            mPhotoPickerAdapter.result.value = true
+            if (list.size != mPhotoPickerAdapter.pageCount) {
+                //加载完成
+                mPhotoPickerAdapter.complete = true
+            }
+            mPhotoPickerAdapter.appendData(list)
+        }
+    }
     /**
      * 创建菜单
      */
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.picker_menu, menu)
         return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        if (mPickerCount == 1) {
+            menu?.findItem(R.id.menu_ok)?.isVisible = false
+        }
+        return super.onPrepareOptionsMenu(menu)
     }
 
     /**
@@ -310,7 +438,7 @@ class PhotoPickerActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
-                REQUEST_FOLDER     -> {
+                REQUEST_FOLDER -> {
                     val path = ArrayList<String>()
                     val uri = ArrayList<Uri>()
                     val intent = Intent()
@@ -344,8 +472,8 @@ class PhotoPickerActivity : AppCompatActivity() {
     companion object {
         private val REQUEST_PHOTO_VIEW = 434
         private val REQUEST_FOLDER = 525
-        val ARG_RESULT = "RESULT"//结果图片路径集合
-        val ARG_RESULT_URI = "RESULT_URI"//结果图片路径Uri集合
-        val ARG_PICKER_COUNT = "PICKER_COUNT"//所选图片数量
+        val ARG_RESULT = "RESULT" //结果图片路径集合
+        val ARG_RESULT_URI = "RESULT_URI" //结果图片路径Uri集合
+        val ARG_PICKER_COUNT = "PICKER_COUNT" //所选图片数量
     }
 }

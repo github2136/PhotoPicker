@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.lifecycle.MutableLiveData
 import com.github2136.photopicker.R
 import com.github2136.photopicker.entity.PhotoPicker
 import com.github2136.photopicker.other.ImageLoaderInstance
@@ -19,8 +20,22 @@ import java.util.*
  * Created by yb on 2017/8/26.
  */
 
-class PhotoPickerAdapter(val context: Context, list: MutableList<PhotoPicker>, private val mSelectCount: Int) :
-    PhotoBaseAdapter<PhotoPicker>(list) {
+class PhotoPickerAdapter(val context: Context, private val mSelectCount: Int) : PhotoBaseAdapter<PhotoPicker>(null) {
+    //页码
+    var pageIndex = 0
+    //每页数量
+    var pageCount = 20
+    //刷新状态 true 刷新中 false 刷新完成
+    var refreshing = MutableLiveData<Boolean>()
+    //加载更多 true 获取更多中 false 获取完成
+    var loading = MutableLiveData<Boolean>()
+    //数据获取结果 true 数据获取成功 false 数据获取失败
+    var result = MutableLiveData<Boolean>()
+    //加载所有数据
+    var complete = false
+    //加载更多
+    lateinit var loadMore: () -> Unit
+
     var pickerUris: ArrayList<Uri> = arrayListOf()
     var pickerPaths: ArrayList<String> = arrayListOf()
     private val mViewSize: Int = (context.resources.displayMetrics.widthPixels - 5 * 4) / 3
@@ -42,6 +57,14 @@ class PhotoPickerAdapter(val context: Context, list: MutableList<PhotoPicker>, p
     }
 
     override fun onBindView(photoPicker: PhotoPicker, holder: PhotoVH, position: Int) {
+        if (!complete && refreshing.value != true && loading.value != true && result.value == true) {
+            //提前半页触发加载更多
+            val trigger = itemCount - pageCount / 2
+            if (trigger in 1 until position) {
+                loadMore.invoke()
+            }
+        }
+
         val ivImage = holder.getView<ImageView>(R.id.iv_image)
         val ivCheck = holder.getView<AppCompatImageView>(R.id.iv_check)
         val flCheck = holder.getView<FrameLayout>(R.id.fl_check)
@@ -51,9 +74,9 @@ class PhotoPickerAdapter(val context: Context, list: MutableList<PhotoPicker>, p
         ivImage!!.layoutParams = layoutParams
         val loader = ImageLoaderInstance.getInstance(context)!!.imageLoader
         if (loader!!.supportAnimatedGifThumbnail()) {
-            loader.loadThumbnail(context, mImgSize, mImgSize, ivImage, photoPicker.data!!)
-        } else {
             loader.loadAnimatedGifThumbnail(context, mImgSize, mImgSize, ivImage, photoPicker.data!!)
+        } else {
+            loader.loadThumbnail(context, mImgSize, mImgSize, ivImage, photoPicker.data!!)
         }
         val uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, photoPicker._id!!.toString())
         val path = photoPicker.data!!
@@ -85,7 +108,6 @@ class PhotoPickerAdapter(val context: Context, list: MutableList<PhotoPicker>, p
             }
         }
     }
-
 
     fun clearSelectPaths() {
         pickerPaths.clear()

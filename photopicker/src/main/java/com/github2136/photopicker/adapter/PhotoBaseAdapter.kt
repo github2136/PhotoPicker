@@ -7,14 +7,16 @@ import androidx.recyclerview.widget.RecyclerView
 /**
  * Created by yb on 2018/10/29.
  */
-abstract class PhotoBaseAdapter<T>(protected var list: MutableList<T>? = null) : RecyclerView.Adapter<PhotoVH>() {
+abstract class PhotoBaseAdapter<T>(var list: MutableList<T>? = null) : RecyclerView.Adapter<PhotoVH>() {
     protected lateinit var mLayoutInflater: LayoutInflater
+
     /**
      * 通过类型获得布局ID
      *
      * @param viewType
      * @return
      */
+    @androidx.annotation.LayoutRes
     abstract fun getLayoutId(viewType: Int): Int
 
     protected abstract fun onBindView(t: T, holder: PhotoVH, position: Int)
@@ -22,7 +24,7 @@ abstract class PhotoBaseAdapter<T>(protected var list: MutableList<T>? = null) :
     /**
      * 获得对象
      */
-    fun getItem(position: Int): T? {
+    open fun getItem(position: Int): T? {
         return list?.get(position)
     }
 
@@ -46,6 +48,7 @@ abstract class PhotoBaseAdapter<T>(protected var list: MutableList<T>? = null) :
 
     protected var itemClickListener: ((Int) -> Unit)? = null
     protected var itemLongClickListener: ((Int) -> Unit)? = null
+    protected var viewClickListener: ((position: Int, id: Int) -> Unit)? = null
 
     fun setOnItemClickListener(itemClickListener: (position: Int) -> Unit) {
         this.itemClickListener = itemClickListener
@@ -53,6 +56,10 @@ abstract class PhotoBaseAdapter<T>(protected var list: MutableList<T>? = null) :
 
     fun setOnItemLongClickListener(itemLongClickListener: (position: Int) -> Unit) {
         this.itemLongClickListener = itemLongClickListener
+    }
+
+    fun setOnViewClickListener(viewClickListener: (position: Int, id: Int) -> Unit) {
+        this.viewClickListener = viewClickListener
     }
 
     fun setData(list: MutableList<T>) {

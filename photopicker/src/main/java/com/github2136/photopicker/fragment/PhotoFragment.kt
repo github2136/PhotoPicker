@@ -53,9 +53,9 @@ class PhotoFragment : Fragment() {
         ivPhoto = view.findViewById<View>(R.id.iv_photo) as PhotoView
         val loader = ImageLoaderInstance.getInstance(context!!)!!.imageLoader
         if (loader!!.supportAnimatedGif()) {
-            loader.loadImage(context!!, ivPhoto!!, photoPath!!)
-        } else {
             loader.loadAnimatedGifImage(context!!, ivPhoto!!, photoPath!!)
+        } else {
+            loader.loadImage(context!!, ivPhoto!!, photoPath!!)
         }
         ivPhoto!!.setOnClickListener(mOnClickListener)
     }
