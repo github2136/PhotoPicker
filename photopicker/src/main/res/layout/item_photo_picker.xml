@@ -1,18 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:background="@drawable/sha_photo_bg"
     android:layout_height="wrap_content"
+    android:background="@drawable/sha_photo_bg"
     android:orientation="vertical">
 
     <ImageView
         android:id="@+id/iv_image"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        tools:srcCompat="@drawable/img_picker_place"/>
+        tools:srcCompat="@drawable/img_picker_place" />
+
+    <View
+        android:id="@+id/check"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/iv_image"
+        android:layout_alignTop="@id/iv_image"
+        android:layout_alignRight="@id/iv_image"
+        android:layout_alignBottom="@id/iv_image"
+        android:background="@color/colorSelView"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <FrameLayout
         android:id="@+id/fl_check"
@@ -31,6 +42,6 @@
             android:layout_height="wrap_content"
             android:background="@drawable/sha_picker_check_bg"
             android:tint="@color/pickerAccent"
-            app:srcCompat="@drawable/ic_photo_check_box"/>
+            app:srcCompat="@drawable/ic_photo_check_box" />
     </FrameLayout>
 </RelativeLayout>

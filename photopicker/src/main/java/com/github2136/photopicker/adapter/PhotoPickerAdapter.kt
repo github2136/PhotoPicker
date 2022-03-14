@@ -65,47 +65,50 @@ class PhotoPickerAdapter(val context: Context, private val mSelectCount: Int) : 
             }
         }
 
-        val ivImage = holder.getView<ImageView>(R.id.iv_image)
-        val ivCheck = holder.getView<AppCompatImageView>(R.id.iv_check)
-        val flCheck = holder.getView<FrameLayout>(R.id.fl_check)
+        val ivImage = holder.getView<ImageView>(R.id.iv_image)!!
+        val check = holder.getView<View>(R.id.check)!!
+        val ivCheck = holder.getView<AppCompatImageView>(R.id.iv_check)!!
+        val flCheck = holder.getView<FrameLayout>(R.id.fl_check)!!
         if (mSelectCount == 1) {
-            ivCheck!!.visibility = View.GONE
+            ivCheck.visibility = View.GONE
         }
-        ivImage!!.layoutParams = layoutParams
-        val loader = ImageLoaderInstance.getInstance(context)!!.imageLoader
-        if (loader!!.supportAnimatedGifThumbnail()) {
+        ivImage.layoutParams = layoutParams
+        val loader = ImageLoaderInstance.getInstance(context)!!.imageLoader!!
+        if (loader.supportAnimatedGifThumbnail()) {
             loader.loadAnimatedGifThumbnail(context, mImgSize, mImgSize, ivImage, photoPicker.data!!)
         } else {
             loader.loadThumbnail(context, mImgSize, mImgSize, ivImage, photoPicker.data!!)
         }
-        val uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, photoPicker._id!!.toString())
+        val uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, photoPicker._id.toString())
         val path = photoPicker.data!!
         if (pickerPaths.contains(path)) {
-            ivCheck!!.setImageResource(R.drawable.ic_photo_check_box)
+            ivCheck.setImageResource(R.drawable.ic_photo_check_box)
             ivCheck.setBackgroundResource(R.drawable.sha_picker_check_bg)
+            check.visibility = View.VISIBLE
         } else {
-            ivCheck!!.setImageResource(R.drawable.ic_photo_check_box_outline)
+            ivCheck.setImageResource(R.drawable.ic_photo_check_box_outline)
             ivCheck.setBackgroundColor(Color.TRANSPARENT)
+            check.visibility = View.GONE
         }
-        flCheck!!.setOnClickListener {
+        flCheck.setOnClickListener {
             if (pickerPaths.contains(path)) {
                 pickerPaths.remove(path)
                 pickerUris.remove(uri)
                 ivCheck.setImageResource(R.drawable.ic_photo_check_box_outline)
                 ivCheck.setBackgroundColor(Color.TRANSPARENT)
+                check.visibility = View.GONE
             } else {
                 if (mSelectCount > pickerPaths.size) {
                     pickerPaths.add(path)
                     pickerUris.add(uri)
                     ivCheck.setImageResource(R.drawable.ic_photo_check_box)
                     ivCheck.setBackgroundResource(R.drawable.sha_picker_check_bg)
+                    check.visibility = View.VISIBLE
                 } else {
                     Toast.makeText(context, "最多选择 $mSelectCount 张", Toast.LENGTH_SHORT).show()
                 }
             }
-            if (mOnSelectChangeCallback != null) {
-                mOnSelectChangeCallback!!.selectChange(pickerPaths.size)
-            }
+            mOnSelectChangeCallback?.selectChange(pickerPaths.size)
         }
     }
 

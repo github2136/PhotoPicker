@@ -7,5 +7,6 @@
     <color name="pickerBottomTextColor">#ffffff</color>
     <color name="pickerImgColor">#999999</color>
 
-    <color name="colorSelTran">#1a000000</color>
+    <color name="colorSelTran">#1F000000</color>
+    <color name="colorSelView">#80000000</color>
 </resources>
