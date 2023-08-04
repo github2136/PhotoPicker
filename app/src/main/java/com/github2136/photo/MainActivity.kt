@@ -53,6 +53,11 @@ class MainActivity : AppCompatActivity() {
             intent.putStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS, selectPaths)
             startActivityForResult(intent, 5)
         }
+        im_preview2.setOnClickListener {
+            val intent = Intent(this@MainActivity, PhotoViewActivity::class.java)
+            intent.putStringArrayListExtra(PhotoViewActivity.ARG_PHOTOS,  arrayListOf("http://pica.zhimg.com/v2-7cb8b1ea5e11779e25b4b35d52b777f2_l.jpg?source=32738c0c","https://pica.zhimg.com/v2-7cb8b1ea5e11779e25b4b35d52b777f2_l.jpg?source=32738c0c"))
+            startActivityForResult(intent, 5)
+        }
         val permission = ArrayMap<String, String>()
         permission[Manifest.permission.WRITE_EXTERNAL_STORAGE] = "文件写入"
         permissionUtil.getPermission(permission) { }

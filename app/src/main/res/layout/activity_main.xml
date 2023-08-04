@@ -36,5 +36,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="查看图片"/>
+    <Button
+        android:id="@+id/im_preview2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="查看网络"/>
 
 </LinearLayout>
