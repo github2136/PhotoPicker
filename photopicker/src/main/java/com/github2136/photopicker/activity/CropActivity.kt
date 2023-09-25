@@ -1,5 +1,6 @@
 package com.github2136.photopicker.activity
 
+import android.Manifest
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
@@ -9,8 +10,11 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.provider.Settings
 import android.text.TextUtils
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.github2136.photopicker.R
 import com.github2136.photopicker.other.PhotoCommonUtil
@@ -29,7 +33,7 @@ import java.io.File
  */
 class CropActivity : AppCompatActivity() {
     private val mSpUtil: PhotoSPUtil by lazy { PhotoSPUtil.getInstance(this) }
-
+    val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     private val photoPath: String?
         get() {
             var mPhotoPath: String? = null
@@ -55,11 +59,20 @@ class CropActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_crop)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkPermissionDenied(permissions)) {
+            requestPermissions(permissions, 1)
+        } else {
+            initCorp()
+        }
+    }
+
+    fun initCorp() {
         if (!(intent.hasExtra(ARG_CROP_IMG) &&
                 intent.hasExtra(ARG_ASPECT_X) &&
                 intent.hasExtra(ARG_ASPECT_Y) &&
                 intent.hasExtra(ARG_OUTPUT_X) &&
-                intent.hasExtra(ARG_OUTPUT_Y))) {
+                intent.hasExtra(ARG_OUTPUT_Y))
+        ) {
             Toast.makeText(this, "缺少参数", Toast.LENGTH_SHORT).show()
             finish()
         } else {
@@ -93,8 +106,8 @@ class CropActivity : AppCompatActivity() {
             intent.putExtra("aspectY", aspY)
             intent.putExtra("outputX", outX)
             intent.putExtra("outputY", outY)
-            intent.putExtra("scale", true)// 如果选择的图小于裁剪大小则进行放大
-            intent.putExtra("scaleUpIfNeeded", true)// 如果选择的图小于裁剪大小则进行放大
+            intent.putExtra("scale", true) // 如果选择的图小于裁剪大小则进行放大
+            intent.putExtra("scaleUpIfNeeded", true) // 如果选择的图小于裁剪大小则进行放大
             intent.putExtra(MediaStore.EXTRA_OUTPUT, mOutUri)
             intent.putExtra("return-data", false)
             intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString())
@@ -131,13 +144,70 @@ class CropActivity : AppCompatActivity() {
         return contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        var allow = true
+        var denied = mutableListOf<String>()
+        for ((index, permission) in permissions.withIndex()) {
+            //  拒绝的权限
+            if (grantResults[index] == PackageManager.PERMISSION_DENIED) {
+                allow = false
+                denied.add(permission)
+                //判断是否点击不再提示
+                val showRationale = shouldShowRequestPermissionRationale(permission);
+                if (!showRationale) {
+                    // 用户点击不再提醒，打开设置页让用户开启权限
+                    AlertDialog.Builder(this)
+                        .setTitle("警告")
+                        .setMessage("缺少 ${getString(packageManager.getPermissionInfo(permission, 0).labelRes)} 权限，是否打开设置修改权限？")
+                        .setPositiveButton("打开设置") { _, _ ->
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                            val uri = Uri.fromParts("package", packageName, null);
+                            intent.data = uri;
+                            startActivity(intent);
+                        }
+                        .setNegativeButton("取消", null)
+                        .show()
+                    break
+                }
+            }
+
+            if (!allow) {
+                // 用户点击了取消...
+                AlertDialog.Builder(this)
+                    .setTitle("警告")
+                    .setMessage("缺少 ${denied.joinToString { getString(packageManager.getPermissionInfo(it, 0).labelRes) }} 权限，继续使用请重新请求权限")
+                    .setPositiveButton("请求权限") { _, _ ->
+                        requestPermissions(permissions, 1)
+                    }
+                    .setNegativeButton("取消", null)
+                    .show()
+            }
+        }
+        if (allow) {
+            initCorp()
+        }
+    }
+
+    /**
+     * 判断权限拒绝
+     */
+    fun checkPermissionDenied(permissions: Array<String>): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            permissions.firstOrNull { checkSelfPermission(it) == PackageManager.PERMISSION_DENIED } != null
+        } else {
+            false
+        }
+    }
+
     companion object {
-        val ARG_CROP_IMG = "CROP_IMG"//需要裁剪地图片URI
+        val ARG_CROP_IMG = "CROP_IMG" //需要裁剪地图片URI
         val ARG_ASPECT_X = "ASPECT_X"
         val ARG_ASPECT_Y = "ASPECT_Y"
         val ARG_OUTPUT_X = "OUTPUT_X"
         val ARG_OUTPUT_Y = "OUTPUT_Y"
-        val ARG_FILE_PATH = "FILE_PATH"//图片保存目录
+        val ARG_FILE_PATH = "FILE_PATH" //图片保存目录
         private val REQUEST_CROP = 742
         private val KEY_FILE_URI = "CROP_FILE_URI"
     }

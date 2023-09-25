@@ -1,19 +1,24 @@
 package com.github2136.photopicker.activity
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
+import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.webkit.MimeTypeMap
 import android.widget.Button
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -34,6 +39,7 @@ import java.util.*
  *      ARG_RESULT_URI返回图片的URI
  */
 class PhotoPickerActivity : AppCompatActivity() {
+    val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     private var mFolderName: MutableList<String> = mutableListOf() //文件夹名称
     private var mPickerCount: Int = 0 //可选择图片数量
     private lateinit var mPhotoPickerAdapter: PhotoPickerAdapter
@@ -45,7 +51,14 @@ class PhotoPickerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_photo_picker)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkPermissionDenied(permissions)) {
+            requestPermissions(permissions, 1)
+        } else {
+            initPhoto()
+        }
+    }
 
+    fun initPhoto() {
         btn_folder.setOnClickListener(mOnClickListener)
         btn_preview.setOnClickListener(mOnClickListener)
         setSupportActionBar(tb_title)
@@ -459,6 +472,7 @@ class PhotoPickerActivity : AppCompatActivity() {
                         Toast.makeText(this, "非图片类型文件(jpg、png、gif)", Toast.LENGTH_SHORT).show()
                     }
                 }
+
                 REQUEST_PHOTO_VIEW -> {
                     val pickerPath = data!!.getStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS)
                     mPhotoPickerAdapter.pickerPaths = pickerPath
@@ -466,6 +480,63 @@ class PhotoPickerActivity : AppCompatActivity() {
                     setToolbarTitle(pickerPath.size, mSelectFolderName)
                 }
             }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        var allow = true
+        var denied = mutableListOf<String>()
+        for ((index, permission) in permissions.withIndex()) {
+            //  拒绝的权限
+            if (grantResults[index] == PackageManager.PERMISSION_DENIED) {
+                allow = false
+                denied.add(permission)
+                //判断是否点击不再提示
+                val showRationale = shouldShowRequestPermissionRationale(permission);
+                if (!showRationale) {
+                    // 用户点击不再提醒，打开设置页让用户开启权限
+                    AlertDialog.Builder(this)
+                        .setTitle("警告")
+                        .setMessage("缺少 ${getString(packageManager.getPermissionInfo(permission, 0).labelRes)} 权限，是否打开设置修改权限？")
+                        .setPositiveButton("打开设置") { _, _ ->
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                            val uri = Uri.fromParts("package", packageName, null);
+                            intent.data = uri;
+                            startActivity(intent);
+                        }
+                        .setNegativeButton("取消", null)
+                        .show()
+                    break
+                }
+            }
+
+            if (!allow) {
+                // 用户点击了取消...
+                AlertDialog.Builder(this)
+                    .setTitle("警告")
+                    .setMessage("缺少 ${denied.joinToString { getString(packageManager.getPermissionInfo(it, 0).labelRes) }} 权限，继续使用请重新请求权限")
+                    .setPositiveButton("请求权限") { _, _ ->
+                        requestPermissions(permissions, 1)
+                    }
+                    .setNegativeButton("取消", null)
+                    .show()
+            }
+        }
+        if (allow) {
+            initPhoto()
+        }
+    }
+
+    /**
+     * 判断权限拒绝
+     */
+    fun checkPermissionDenied(permissions: Array<String>): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            permissions.firstOrNull { checkSelfPermission(it) == PackageManager.PERMISSION_DENIED } != null
+        } else {
+            false
         }
     }
 
