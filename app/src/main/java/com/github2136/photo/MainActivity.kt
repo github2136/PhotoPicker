@@ -16,7 +16,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
-    val permissionUtil by lazy { PermissionUtil(this) }
     var selectPaths: ArrayList<String> = ArrayList()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,10 +57,7 @@ class MainActivity : AppCompatActivity() {
             intent.putStringArrayListExtra(PhotoViewActivity.ARG_PHOTOS,  arrayListOf("http://pica.zhimg.com/v2-7cb8b1ea5e11779e25b4b35d52b777f2_l.jpg?source=32738c0c","https://pica.zhimg.com/v2-7cb8b1ea5e11779e25b4b35d52b777f2_l.jpg?source=32738c0c"))
             startActivityForResult(intent, 5)
         }
-        val permission = ArrayMap<String, String>()
-        permission[Manifest.permission.WRITE_EXTERNAL_STORAGE] = "文件写入"
-        permissionUtil.getPermission(permission) { }
-    }
+            }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -108,15 +104,5 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        permissionUtil.onRestart()
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        permissionUtil.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 }

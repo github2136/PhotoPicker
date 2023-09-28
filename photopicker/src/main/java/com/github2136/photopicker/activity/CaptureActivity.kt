@@ -104,15 +104,6 @@ class CaptureActivity : AppCompatActivity() {
         return contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
     }
 
-    override fun onRestart() {
-        super.onRestart()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkPermissionDenied(permissions)) {
-            requestPermissions(permissions, 1)
-        } else {
-            initCapture()
-        }
-    }
-
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -135,8 +126,11 @@ class CaptureActivity : AppCompatActivity() {
                             val uri = Uri.fromParts("package", packageName, null);
                             intent.data = uri;
                             startActivity(intent);
+                            finish()
                         }
-                        .setNegativeButton("取消", null)
+                        .setNegativeButton("取消") { _, _ ->
+                            finish()
+                        }
                         .show()
                     break
                 }

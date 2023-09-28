@@ -160,6 +160,14 @@ class PhotoViewActivity : AppCompatActivity(), PhotoFragment.OnFragmentInteracti
         }
     }
 
+    override fun onRestart() {
+        super.onRestart()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkPermissionDenied(permissions)) {
+            requestPermissions(permissions, 1)
+        } else {
+            initPhoto()
+        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

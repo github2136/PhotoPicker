@@ -3,7 +3,8 @@
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application android:usesCleartextTraffic="true">
         <activity
@@ -14,7 +15,11 @@
             android:name="com.github2136.photopicker.activity.PhotoViewActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Picker.Theme" />
-        <activity android:name="com.github2136.photopicker.activity.CaptureActivity"></activity>
-        <activity android:name="com.github2136.photopicker.activity.CropActivity"></activity>
+        <activity
+            android:name="com.github2136.photopicker.activity.CaptureActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name="com.github2136.photopicker.activity.CropActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 </manifest>

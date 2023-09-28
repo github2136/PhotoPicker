@@ -39,7 +39,7 @@ import java.util.*
  *      ARG_RESULT_URI返回图片的URI
  */
 class PhotoPickerActivity : AppCompatActivity() {
-    val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    private val permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
     private var mFolderName: MutableList<String> = mutableListOf() //文件夹名称
     private var mPickerCount: Int = 0 //可选择图片数量
     private lateinit var mPhotoPickerAdapter: PhotoPickerAdapter
@@ -51,17 +51,8 @@ class PhotoPickerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_photo_picker)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkPermissionDenied(permissions)) {
-            requestPermissions(permissions, 1)
-        } else {
-            initPhoto()
-        }
-    }
-
-    fun initPhoto() {
-        btn_folder.setOnClickListener(mOnClickListener)
-        btn_preview.setOnClickListener(mOnClickListener)
         setSupportActionBar(tb_title)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         mPickerCount = intent.getIntExtra(ARG_PICKER_COUNT, 0)
         if (mPickerCount < 1) {
             Toast.makeText(this, "可选图片数量至少为1", Toast.LENGTH_SHORT).show()
@@ -74,31 +65,18 @@ class PhotoPickerActivity : AppCompatActivity() {
         mMimeType.add("image/gif")
         if (mPickerCount == 1) {
             btn_preview.visibility = View.GONE
-
         }
-        // getSupportActionBar().setToolbarTitle("标题");
-        // getSupportActionBar().setSubtitle("副标题");
-        // getSupportActionBar().setLogo(R.drawable.ic_launcher);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkPermissionDenied(permissions)) {
+            requestPermissions(permissions, 1)
+        } else {
+            initPhoto()
+        }
+    }
 
-        /* 菜单的监听可以在toolbar里设置，也可以像ActionBar那样，通过Activity的onOptionsItemSelected回调方法来处理 */
-        //        tb_title.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-        //            @Override
-        //            public boolean onMenuItemClick(MenuItem item) {
-        //                switch (item.getItemId()) {
-        //                    case R.id.action_settings:
-        //                        Toast.makeText(MainActivity.this, "action_settings", 0).show();
-        //                        break;
-        //                    case R.id.action_share:
-        //                        Toast.makeText(MainActivity.this, "action_share", 0).show();
-        //                        break;
-        //                    default:
-        //                        break;
-        //                }
-        //                return true;
-        //            }
-        //        });
-        //显示返回按钮onOptionsItemSelected中监听id固定为android.R.id.home
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+    fun initPhoto() {
+        invalidateOptionsMenu()
+        btn_folder.setOnClickListener(mOnClickListener)
+        btn_preview.setOnClickListener(mOnClickListener)
 
         val rvImages = findViewById<View>(R.id.rv_images) as RecyclerView
         rvImages.setHasFixedSize(true)
@@ -411,9 +389,15 @@ class PhotoPickerActivity : AppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        if (mPickerCount == 1) {
+        if (checkPermissionDenied(permissions)) {
             menu?.findItem(R.id.menu_ok)?.isVisible = false
+            menu?.findItem(R.id.menu_system)?.isVisible = false
+        } else {
+            if (mPickerCount == 1) {
+                menu?.findItem(R.id.menu_ok)?.isVisible = false
+            }
         }
+
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -430,7 +414,7 @@ class PhotoPickerActivity : AppCompatActivity() {
         } else if (i == R.id.menu_ok) {
             val uris = mPhotoPickerAdapter.pickerUris
             val imgs = mPhotoPickerAdapter.pickerPaths
-            if (!imgs.isNullOrEmpty()) {
+            if (imgs.isNotEmpty()) {
                 val intent = Intent()
                 intent.putParcelableArrayListExtra(ARG_RESULT_URI, uris)
                 intent.putStringArrayListExtra(ARG_RESULT, imgs)
@@ -480,6 +464,13 @@ class PhotoPickerActivity : AppCompatActivity() {
                     setToolbarTitle(pickerPath.size, mSelectFolderName)
                 }
             }
+        }
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        if (!::mPhotoPickerAdapter.isInitialized && !checkPermissionDenied(permissions)) {
+            initPhoto()
         }
     }
 
