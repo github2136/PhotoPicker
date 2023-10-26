@@ -228,8 +228,8 @@ class PhotoViewActivity : AppCompatActivity(), PhotoFragment.OnFragmentInteracti
 
     companion object {
         val ARG_PHOTOS = "PHOTOS" //显示的图片路径
+        val ARG_PICKER_PATHS = "PICKER_PATHS" //所选图片路径
         val ARG_CURRENT_INDEX = "CURRENT_INDEX" //显示的图片下标
         val ARG_PICKER_COUNT = "PICKER_COUNT" //可选图片数量
-        val ARG_PICKER_PATHS = "PICKER_PATHS" //所选图片路径
     }
 }

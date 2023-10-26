@@ -8,22 +8,27 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.provider.Settings
 import android.text.TextUtils
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.github2136.photopicker.BuildConfig
 import com.github2136.photopicker.R
 import com.github2136.photopicker.other.PhotoFileUtil
 import com.github2136.photopicker.other.PhotoSPUtil
 import java.io.File
 
 /**
- *      图片拍摄
- *      默认存储只外部私有图片目录下，或在application中添加name为photo_picker_path的&lt;meta&#62;，私有目录下的图片不能添加到媒体库中，选择图片时将会无法查看到
- *      ARG_FILE_PATH图片保存路径目录，不包括文件名，优先级比photo_picker_path高，可不填
- *      intent.data返回图片URI，可使用PhotoFileUtil.getFileAbsolutePath(this, intent.data)将URI转换为物理路径
+ *
+ * 图片拍摄
+ * 默认存储只外部私有图片目录下，或在application中添加name为photo_picker_path的<meta>，私有目录下的图片不能添加到媒体库中，选择图片时将会无法查看到
+ * intent.data返回图片URI，可使用PhotoFileUtil.getFileAbsolutePath(this, intent.data)将URI转换为物理路径
+ *
+ * api>=29
+ * photo_picker_path表示为Picture下级目录
  */
 class CaptureActivity : AppCompatActivity() {
     private val mSpUtil by lazy { PhotoSPUtil.getInstance(this) }
@@ -37,7 +42,11 @@ class CaptureActivity : AppCompatActivity() {
                 if (metaData != null) {
                     mPhotoPath = metaData.getString("photo_picker_path")
                     if (!TextUtils.isEmpty(mPhotoPath)) {
-                        mPhotoPath = PhotoFileUtil.getExternalStorageRootPath() + File.separator + mPhotoPath
+                        if (Build.VERSION.SDK_INT < 29) {
+                            mPhotoPath = PhotoFileUtil.getExternalStorageRootPath() + File.separator + mPhotoPath
+                        } else {
+                            mPhotoPath = Environment.DIRECTORY_PICTURES + File.separator + mPhotoPath
+                        }
                     }
                 }
             } catch (e: PackageManager.NameNotFoundException) {
@@ -62,18 +71,7 @@ class CaptureActivity : AppCompatActivity() {
 
     fun initCapture() {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        val filePath: String
-        val file: File
-        if (getIntent().hasExtra(ARG_FILE_PATH)) {
-            filePath = getIntent().getStringExtra(ARG_FILE_PATH)
-            file = File(PhotoFileUtil.getExternalStorageRootPath() + File.separator + filePath, PhotoFileUtil.createFileName(".jpg"))
-        } else {
-            file = File(photoPath, PhotoFileUtil.createFileName(".jpg"))
-        }
-        if (!file.parentFile.exists()) {
-            file.parentFile.mkdirs()
-        }
-        val mShootUri = insert(file)
+        val mShootUri = insert(PhotoFileUtil.createFileName(".jpg"))
         mSpUtil.edit()
             .putValue(KEY_FILE_URI, mShootUri.toString())
             .apply()
@@ -98,9 +96,25 @@ class CaptureActivity : AppCompatActivity() {
     /**
      * 返回图片uri
      */
-    private fun insert(file: File): Uri? {
+    private fun insert(fileName: String): Uri? {
         val contentValues = ContentValues(1)
-        contentValues.put(MediaStore.Images.Media.DATA, file.absolutePath)
+        if (Build.VERSION.SDK_INT < 29) {
+            val filePath: String
+            val file: File
+            // if (intent.hasExtra(ARG_FILE_PATH)) {
+            //     filePath = intent.getStringExtra(ARG_FILE_PATH)!!
+            //     file = File(PhotoFileUtil.getExternalStorageRootPath() + File.separator + filePath, PhotoFileUtil.createFileName(".jpg"))
+            // } else {
+                file = File(photoPath, PhotoFileUtil.createFileName(".jpg"))
+            // }
+            if (!file.parentFile.exists()) {
+                file.parentFile.mkdirs()
+            }
+            contentValues.put(MediaStore.Images.Media.DATA, file.absolutePath)
+        } else {
+            contentValues.put(MediaStore.Images.ImageColumns.DISPLAY_NAME, fileName)
+            contentValues.put(MediaStore.Images.ImageColumns.RELATIVE_PATH, photoPath)
+        }
         return contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
     }
 
@@ -165,7 +179,7 @@ class CaptureActivity : AppCompatActivity() {
     }
 
     companion object {
-        val ARG_FILE_PATH = "FILE_PATH" //图片保存目录
+        // val ARG_FILE_PATH = "FILE_PATH" //图片保存目录
         private val REQUEST_CAPTURE = 706
         //文件Uri
         private val KEY_FILE_URI = "CAPTURE_FILE_URI"

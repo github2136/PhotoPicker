@@ -9,6 +9,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.provider.Settings
 import android.text.TextUtils
@@ -23,13 +24,17 @@ import com.github2136.photopicker.other.PhotoSPUtil
 import java.io.File
 
 /**
- *      图片裁剪
- *      ARG_CROP_IMG 需要裁剪的图片URI
- *      ARG_ASPECT_X/ARG_ASPECT_Y裁剪框比例
- *      ARG_OUTPUT_X/ARG_OUTPUT_Y图片输出尺寸
- *      默认存储只外部私有图片目录下，或在application中添加name为photo_picker_path的&lt;meta&#62;，私有目录下的图片不能添加到媒体库中，选择图片时将会无法查看到
- *      OUTPUT_IMG图片保存路径目录，不包括文件名，优先级比photo_picker_path高，可不填
- *      intent.data返回图片URI，可使用PhotoFileUtil.getFileAbsolutePath(this, intent.data)将URI转换为物理路径
+ *
+ * 图片裁剪
+ * ARG_CROP_IMG 需要裁剪的图片URI
+ * ARG_ASPECT_X/ARG_ASPECT_Y裁剪框比例
+ * ARG_OUTPUT_X/ARG_OUTPUT_Y图片输出尺寸
+ * 默认存储只外部私有图片目录下，或在application中添加name为photo_picker_path的<meta>，私有目录下的图片不能添加到媒体库中，选择图片时将会无法查看到
+ * intent.data返回图片URI，可使用PhotoFileUtil.getFileAbsolutePath(this, intent.data)将URI转换为物理路径
+ *
+ * api>=29
+ * photo_picker_path表示为Picture下级目录
+ * ARG_FILE_PATH表示为Picture下级目录，不包括文件名，优先级比photo_picker_path高，可不填
  */
 class CropActivity : AppCompatActivity() {
     private val mSpUtil: PhotoSPUtil by lazy { PhotoSPUtil.getInstance(this) }
@@ -43,7 +48,11 @@ class CropActivity : AppCompatActivity() {
                 if (metaData != null) {
                     mPhotoPath = metaData.getString("photo_picker_path")
                     if (!TextUtils.isEmpty(mPhotoPath)) {
-                        mPhotoPath = PhotoFileUtil.getExternalStorageRootPath() + File.separator + mPhotoPath
+                        if (Build.VERSION.SDK_INT < 29) {
+                            mPhotoPath = PhotoFileUtil.getExternalStorageRootPath() + File.separator + mPhotoPath
+                        } else {
+                            mPhotoPath = Environment.DIRECTORY_PICTURES + File.separator + mPhotoPath
+                        }
                     }
                 }
             } catch (e: PackageManager.NameNotFoundException) {
@@ -81,17 +90,8 @@ class CropActivity : AppCompatActivity() {
             val aspY = intent.getIntExtra(ARG_ASPECT_Y, 0)
             val outX = intent.getIntExtra(ARG_OUTPUT_X, 0)
             val outY = intent.getIntExtra(ARG_OUTPUT_Y, 0)
-            val outImg: File
-            if (intent.hasExtra(ARG_FILE_PATH)) {
-                val out = intent.getStringExtra(ARG_FILE_PATH)
-                outImg = File(PhotoFileUtil.getExternalStorageRootPath() + File.separator + out, PhotoFileUtil.createFileName(".jpg"))
-            } else {
-                outImg = File(photoPath, PhotoFileUtil.createFileName(".jpg"))
-            }
-            if (!outImg.parentFile.exists()) {
-                outImg.parentFile.mkdirs()
-            }
-            val mOutUri = insert(outImg)
+
+            val mOutUri = insert(PhotoFileUtil.createFileName(".jpg"))
 
             mSpUtil.edit()
                 .putValue(KEY_FILE_URI, mOutUri.toString())
@@ -138,19 +138,20 @@ class CropActivity : AppCompatActivity() {
     /**
      * 返回图片uri
      */
-    private fun insert(file: File): Uri? {
+    private fun insert(fileName: String): Uri? {
         val contentValues = ContentValues(1)
-        contentValues.put(MediaStore.Images.Media.DATA, file.absolutePath)
-        return contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkPermissionDenied(permissions)) {
-            requestPermissions(permissions, 1)
+        if (Build.VERSION.SDK_INT < 29) {
+            val filePath: String
+            val file: File = File(photoPath, PhotoFileUtil.createFileName(".jpg"))
+            if (!file.parentFile.exists()) {
+                file.parentFile.mkdirs()
+            }
+            contentValues.put(MediaStore.Images.Media.DATA, file.absolutePath)
         } else {
-            initCorp()
+            contentValues.put(MediaStore.Images.ImageColumns.DISPLAY_NAME, fileName)
+            contentValues.put(MediaStore.Images.ImageColumns.RELATIVE_PATH, photoPath)
         }
+        return contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -216,7 +217,6 @@ class CropActivity : AppCompatActivity() {
         val ARG_ASPECT_Y = "ASPECT_Y"
         val ARG_OUTPUT_X = "OUTPUT_X"
         val ARG_OUTPUT_Y = "OUTPUT_Y"
-        val ARG_FILE_PATH = "FILE_PATH" //图片保存目录
         private val REQUEST_CROP = 742
         private val KEY_FILE_URI = "CROP_FILE_URI"
     }

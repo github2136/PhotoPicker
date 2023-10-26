@@ -75,9 +75,9 @@ class PhotoPickerAdapter(val context: Context, private val mSelectCount: Int) : 
         ivImage.layoutParams = layoutParams
         val loader = ImageLoaderInstance.getInstance(context)!!.imageLoader!!
         if (loader.supportAnimatedGifThumbnail()) {
-            loader.loadAnimatedGifThumbnail(context, mImgSize, mImgSize, ivImage, photoPicker.data!!)
+            loader.loadAnimatedGifThumbnail(context, mImgSize, mImgSize, ivImage, Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, photoPicker._id.toString()).toString())
         } else {
-            loader.loadThumbnail(context, mImgSize, mImgSize, ivImage, photoPicker.data!!)
+            loader.loadThumbnail(context, mImgSize, mImgSize, ivImage, Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, photoPicker._id.toString()).toString())
         }
         val uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, photoPicker._id.toString())
         val path = photoPicker.data!!

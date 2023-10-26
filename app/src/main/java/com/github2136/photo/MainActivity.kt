@@ -35,13 +35,11 @@ class MainActivity : AppCompatActivity() {
 
         im_capture.setOnClickListener {
             val intent = Intent(this@MainActivity, CaptureActivity::class.java)
-//            intent.putExtra(CaptureActivity.ARG_FILE_PATH, "Photo")
             startActivityForResult(intent, 2)
         }
 
         im_crop.setOnClickListener {
             val intent = Intent(this@MainActivity, CaptureActivity::class.java)
-            intent.putExtra(CaptureActivity.ARG_FILE_PATH, "fffff")
             startActivityForResult(intent, 3)
         }
 
@@ -57,20 +55,20 @@ class MainActivity : AppCompatActivity() {
             intent.putStringArrayListExtra(PhotoViewActivity.ARG_PHOTOS,  arrayListOf("http://pica.zhimg.com/v2-7cb8b1ea5e11779e25b4b35d52b777f2_l.jpg?source=32738c0c","https://pica.zhimg.com/v2-7cb8b1ea5e11779e25b4b35d52b777f2_l.jpg?source=32738c0c"))
             startActivityForResult(intent, 5)
         }
-            }
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK) {
             when (requestCode) {
                 1 -> {
-                    val result = data!!.getStringArrayListExtra(PhotoPickerActivity.ARG_RESULT)
-                    selectPaths = result
+                    val result = data!!.getStringArrayListExtra(PhotoPickerActivity.ARG_RESULT)!!
                     for (i in result.indices) {
                         val s = result[i]
                         Log.e("path", s)
                     }
-                    val uri = data.getParcelableArrayListExtra<Uri>(PhotoPickerActivity.ARG_RESULT_URI)
+                    val uri = data.getParcelableArrayListExtra<Uri>(PhotoPickerActivity.ARG_RESULT_URI)!!
+                    selectPaths = uri.map { it.toString() } as ArrayList<String>
                     for (i in uri.indices) {
                         val s = uri[i]
                         Log.e("path", s.toString())
@@ -78,7 +76,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 2 -> {
                     val result = data!!.data
-                    Log.e("path", PhotoFileUtil.getFileAbsolutePath(this, result!!))
+                    Log.e("path", PhotoFileUtil.getFileAbsolutePath(this, result!!)!!)
                 }
                 3 -> {
                     val result = data!!.data
@@ -88,15 +86,14 @@ class MainActivity : AppCompatActivity() {
                     intent.putExtra(CropActivity.ARG_ASPECT_Y, 1)
                     intent.putExtra(CropActivity.ARG_OUTPUT_X, 200)
                     intent.putExtra(CropActivity.ARG_OUTPUT_Y, 200)
-                    intent.putExtra(CropActivity.ARG_FILE_PATH, "fffsdf")
                     startActivityForResult(intent, 4)
                 }
                 4 -> {
                     val result = data!!.data
-                    Log.e("path", PhotoFileUtil.getFileAbsolutePath(this, result!!))
+                    Log.e("path", PhotoFileUtil.getFileAbsolutePath(this, result!!)!!)
                 }
                 5 -> {
-                    val result = data!!.getStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS)
+                    val result = data!!.getStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS)!!
                     for (i in result.indices) {
                         val s = result[i]
                         Log.e("path", s)
