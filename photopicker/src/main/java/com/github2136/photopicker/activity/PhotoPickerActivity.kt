@@ -447,7 +447,7 @@ class PhotoPickerActivity : AppCompatActivity() {
 
                     if (mMimeType.contains(mimeTypeMap.getMimeTypeFromExtension(suffix))) {
                         path.add(p)
-                        uri.add(data.data)
+                        uri.add(data.data!!)
                         intent.putStringArrayListExtra(ARG_RESULT, path)
                         intent.putParcelableArrayListExtra(ARG_RESULT_URI, uri)
                         setResult(Activity.RESULT_OK, intent)
@@ -458,7 +458,7 @@ class PhotoPickerActivity : AppCompatActivity() {
                 }
 
                 REQUEST_PHOTO_VIEW -> {
-                    val pickerPath = data!!.getStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS)
+                    val pickerPath = data!!.getStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS)!!
                     mPhotoPickerAdapter.pickerPaths = pickerPath
                     mPhotoPickerAdapter.notifyDataSetChanged()
                     setToolbarTitle(pickerPath.size, mSelectFolderName)

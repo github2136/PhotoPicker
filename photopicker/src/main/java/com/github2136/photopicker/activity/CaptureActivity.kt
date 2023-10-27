@@ -15,7 +15,6 @@ import android.text.TextUtils
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.github2136.photopicker.BuildConfig
 import com.github2136.photopicker.R
 import com.github2136.photopicker.other.PhotoFileUtil
 import com.github2136.photopicker.other.PhotoSPUtil
@@ -99,14 +98,7 @@ class CaptureActivity : AppCompatActivity() {
     private fun insert(fileName: String): Uri? {
         val contentValues = ContentValues(1)
         if (Build.VERSION.SDK_INT < 29) {
-            val filePath: String
-            val file: File
-            // if (intent.hasExtra(ARG_FILE_PATH)) {
-            //     filePath = intent.getStringExtra(ARG_FILE_PATH)!!
-            //     file = File(PhotoFileUtil.getExternalStorageRootPath() + File.separator + filePath, PhotoFileUtil.createFileName(".jpg"))
-            // } else {
-                file = File(photoPath, PhotoFileUtil.createFileName(".jpg"))
-            // }
+            val file = File(photoPath, PhotoFileUtil.createFileName(".jpg"))
             if (!file.parentFile.exists()) {
                 file.parentFile.mkdirs()
             }

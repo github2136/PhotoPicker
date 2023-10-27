@@ -34,7 +34,6 @@ import java.io.File
  *
  * api>=29
  * photo_picker_path表示为Picture下级目录
- * ARG_FILE_PATH表示为Picture下级目录，不包括文件名，优先级比photo_picker_path高，可不填
  */
 class CropActivity : AppCompatActivity() {
     private val mSpUtil: PhotoSPUtil by lazy { PhotoSPUtil.getInstance(this) }
