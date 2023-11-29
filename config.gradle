@@ -1,0 +1,8 @@
+//统一配置
+ext {
+    android = [
+            compileSdkVersion: 30,
+            minSdkVersion    : 14,
+            targetSdkVersion : 30,
+    ]
+}

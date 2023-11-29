@@ -2,12 +2,17 @@ package com.github2136.photopicker.activity
 
 import android.Manifest
 import android.app.Activity
+import android.content.ContentResolver
+import android.content.ContentUris
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
+import android.media.browse.MediaBrowser
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.CancellationSignal
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
@@ -183,13 +188,22 @@ class PhotoPickerActivity : AppCompatActivity() {
         val contentResolver = contentResolver
         var cursor: Cursor? = null
         try {
-            cursor = contentResolver.query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                null,
-                MediaStore.Images.ImageColumns.SIZE + " > 0 and " + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME + " is not null) group by (" + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,
-                null,
-                MediaStore.Images.ImageColumns.DATE_TAKEN + " desc"
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val bundle = Bundle().apply {
+                    putString(ContentResolver.QUERY_ARG_SQL_SELECTION, MediaStore.Images.ImageColumns.SIZE + " > 0 and " + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME + " is not null")
+                    putString(ContentResolver.QUERY_ARG_SQL_GROUP_BY, MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME)
+                    putString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER, MediaStore.Files.FileColumns.DATE_TAKEN + " desc")
+                }
+                cursor = contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, bundle, null)
+            } else {
+                cursor = contentResolver.query(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    null,
+                    MediaStore.Images.ImageColumns.SIZE + " > 0 and " + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME + " is not null) group by (" + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,
+                    null,
+                    MediaStore.Images.ImageColumns.DATE_TAKEN + " desc"
+                )
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             if (e.message?.startsWith("Permission Denial") == true) {
@@ -265,11 +279,23 @@ class PhotoPickerActivity : AppCompatActivity() {
         var cursor: Cursor? = null
         try {
             val folder = if (mSelectFolderName != "*") " and " + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME + " = '$mSelectFolderName' " else ""
-            cursor = contentResolver.query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null,
-                MediaStore.Images.ImageColumns.SIZE + " > 0 and " + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME + " is not null" + folder,
-                null, MediaStore.Images.ImageColumns.DATE_TAKEN + " desc limit ${mPhotoPickerAdapter.pageIndex * mPhotoPickerAdapter.pageCount} , ${mPhotoPickerAdapter.pageCount} "
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val bundle = Bundle().apply {
+                    putString(ContentResolver.QUERY_ARG_SQL_SELECTION, MediaStore.Images.ImageColumns.SIZE + " > 0 and " + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME + " is not null" + folder)
+                    putString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER, MediaStore.Files.FileColumns.DATE_TAKEN + " desc")
+                    putInt(ContentResolver.QUERY_ARG_LIMIT, mPhotoPickerAdapter.pageCount)
+                    putInt(ContentResolver.QUERY_ARG_OFFSET, mPhotoPickerAdapter.pageIndex * mPhotoPickerAdapter.pageCount)
+                }
+                cursor = contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, bundle, null)
+            } else {
+                cursor = contentResolver.query(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    null,
+                    MediaStore.Images.ImageColumns.SIZE + " > 0 and " + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME + " is not null" + folder,
+                    null,
+                    MediaStore.Images.ImageColumns.DATE_TAKEN + " desc limit ${mPhotoPickerAdapter.pageIndex * mPhotoPickerAdapter.pageCount} , ${mPhotoPickerAdapter.pageCount} "
+                )
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             if (e.message?.startsWith("Permission Denial") == true) {

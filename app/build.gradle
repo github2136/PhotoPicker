@@ -3,12 +3,14 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
+def version = rootProject.ext.android
+
 android {
-    compileSdkVersion 30
+    compileSdkVersion version.compileSdkVersion
     defaultConfig {
         applicationId "com.github2136.photo"
-        minSdkVersion 14
-        targetSdkVersion 30
+        minSdkVersion version.minSdkVersion
+        targetSdkVersion version.targetSdkVersion
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

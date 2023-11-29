@@ -3,11 +3,13 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'maven-publish'
 
+def version = rootProject.ext.android
+
 android {
-    compileSdkVersion 30
+    compileSdkVersion version.compileSdkVersion
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 30
+        minSdkVersion version.minSdkVersion
+        targetSdkVersion version.targetSdkVersion
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
