@@ -20,17 +20,15 @@ class PhotoFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (arguments != null) {
-            photoPath = arguments!!.getString(ARG_PHOTO_PATH)
-        }
+        photoPath = arguments?.getString(ARG_PHOTO_PATH)
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is OnFragmentInteractionListener) {
             mListener = context
         } else {
-            throw RuntimeException(context!!.toString() + " must implement OnFragmentInteractionListener")
+            throw RuntimeException(requireContext().toString() + " must implement OnFragmentInteractionListener")
         }
     }
 
@@ -51,11 +49,11 @@ class PhotoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ivPhoto = view.findViewById<View>(R.id.iv_photo) as PhotoView
-        val loader = ImageLoaderInstance.getInstance(context!!)!!.imageLoader
+        val loader = ImageLoaderInstance.getInstance(requireContext())!!.imageLoader
         if (loader!!.supportAnimatedGif()) {
-            loader.loadAnimatedGifImage(context!!, ivPhoto!!, photoPath!!)
+            loader.loadAnimatedGifImage(requireContext(), ivPhoto!!, photoPath!!)
         } else {
-            loader.loadImage(context!!, ivPhoto!!, photoPath!!)
+            loader.loadImage(requireContext(), ivPhoto!!, photoPath!!)
         }
         ivPhoto!!.setOnClickListener(mOnClickListener)
     }

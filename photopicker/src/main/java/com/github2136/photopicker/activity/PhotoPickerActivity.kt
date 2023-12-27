@@ -72,7 +72,15 @@ class PhotoPickerActivity : AppCompatActivity() {
             btn_preview.visibility = View.GONE
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkPermissionDenied(permissions)) {
-            requestPermissions(permissions, 1)
+            AlertDialog.Builder(this)
+                .setTitle("权限获取")
+                .setMessage("图片选择需要文件读写权限。是否立刻授权？")
+                .setPositiveButton("立即授权") { _, _ ->
+                    requestPermissions(permissions, 1)
+                }
+                .setNegativeButton("取消") { _, _ ->
+                    finish()
+                }.show()
         } else {
             initPhoto()
         }
