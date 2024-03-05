@@ -21,6 +21,7 @@ import com.github2136.photopicker.R
 import com.github2136.photopicker.other.PhotoCommonUtil
 import com.github2136.photopicker.other.PhotoFileUtil
 import com.github2136.photopicker.other.PhotoSPUtil
+import com.yalantis.ucrop.UCrop
 import java.io.File
 
 /**
@@ -36,7 +37,7 @@ import java.io.File
  * photo_picker_path表示为Picture下级目录
  */
 class CropActivity : AppCompatActivity() {
-    private val mSpUtil: PhotoSPUtil by lazy { PhotoSPUtil.getInstance(this) }
+    // private val mSpUtil: PhotoSPUtil by lazy { PhotoSPUtil.getInstance(this) }
     val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     private val photoPath: String?
         get() {
@@ -83,7 +84,7 @@ class CropActivity : AppCompatActivity() {
     }
 
     fun initCorp() {
-        if (!(intent.hasExtra(ARG_CROP_IMG) &&
+        if (!(intent.hasExtra(ARG_CROP_URI) &&
                 intent.hasExtra(ARG_ASPECT_X) &&
                 intent.hasExtra(ARG_ASPECT_Y) &&
                 intent.hasExtra(ARG_OUTPUT_X) &&
@@ -92,7 +93,7 @@ class CropActivity : AppCompatActivity() {
             Toast.makeText(this, "缺少参数", Toast.LENGTH_SHORT).show()
             finish()
         } else {
-            val img = intent.getParcelableExtra<Uri>(ARG_CROP_IMG)
+            val img = intent.getParcelableExtra<Uri>(ARG_CROP_URI)
             val aspX = intent.getIntExtra(ARG_ASPECT_X, 0)
             val aspY = intent.getIntExtra(ARG_ASPECT_Y, 0)
             val outX = intent.getIntExtra(ARG_OUTPUT_X, 0)
@@ -100,44 +101,51 @@ class CropActivity : AppCompatActivity() {
 
             val mOutUri = insert(PhotoFileUtil.createFileName(".jpg"))
 
-            mSpUtil.edit()
-                .putValue(KEY_FILE_URI, mOutUri.toString())
-                .apply()
-            val intent = Intent("com.android.camera.action.CROP")
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-                intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            }
-            intent.setDataAndType(img, "image/*")
-            intent.putExtra("crop", "true")
-            intent.putExtra("aspectX", aspX)
-            intent.putExtra("aspectY", aspY)
-            intent.putExtra("outputX", outX)
-            intent.putExtra("outputY", outY)
-            intent.putExtra("scale", true) // 如果选择的图小于裁剪大小则进行放大
-            intent.putExtra("scaleUpIfNeeded", true) // 如果选择的图小于裁剪大小则进行放大
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, mOutUri)
-            intent.putExtra("return-data", false)
-            intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString())
-            intent.putExtra("noFaceDetection", true) // no face detection
-            if (PhotoCommonUtil.isIntentExisting(this, intent)) {
-                startActivityForResult(intent, REQUEST_CROP)
-            } else {
-                Toast.makeText(this, "该机器无法裁剪", Toast.LENGTH_SHORT).show()
-                finish()
-            }
+            // mSpUtil.edit()
+            //     .putValue(KEY_FILE_URI, mOutUri.toString())
+            //     .apply()
+            UCrop.of(img!!, mOutUri!!)
+                .withAspectRatio(aspX.toFloat(), aspY.toFloat())
+                .withMaxResultSize(outX, outY)
+                .start(this)
+            // val intent = Intent("com.android.camera.action.CROP")
+            // if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            //     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            //     intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            // }
+            // intent.setDataAndType(img, "image/*")
+            // intent.putExtra("crop", "true")
+            // intent.putExtra("aspectX", aspX)
+            // intent.putExtra("aspectY", aspY)
+            // intent.putExtra("outputX", outX)
+            // intent.putExtra("outputY", outY)
+            // intent.putExtra("scale", true) // 如果选择的图小于裁剪大小则进行放大
+            // intent.putExtra("scaleUpIfNeeded", true) // 如果选择的图小于裁剪大小则进行放大
+            // intent.putExtra(MediaStore.EXTRA_OUTPUT, mOutUri)
+            // intent.putExtra("return-data", false)
+            // intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString())
+            // intent.putExtra("noFaceDetection", true) // no face detection
+            // if (PhotoCommonUtil.isIntentExisting(this, intent)) {
+            //     startActivityForResult(intent, REQUEST_CROP)
+            // } else {
+            //     Toast.makeText(this, "该机器无法裁剪", Toast.LENGTH_SHORT).show()
+            //     finish()
+            // }
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
             val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
-
-            val contentUri = Uri.parse(mSpUtil.getString(KEY_FILE_URI))
+            val contentUri = UCrop.getOutput(data!!)
             mediaScanIntent.data = contentUri
             this.sendBroadcast(mediaScanIntent)
             val result = Intent()
             result.data = contentUri
             setResult(Activity.RESULT_OK, result)
+        } else if (resultCode == UCrop.RESULT_ERROR) {
+            // final Throwable cropError = UCrop.getError(data!!);
         }
         finish()
     }
@@ -219,12 +227,10 @@ class CropActivity : AppCompatActivity() {
     }
 
     companion object {
-        val ARG_CROP_IMG = "CROP_IMG" //需要裁剪地图片URI
+        val ARG_CROP_URI = "CROP_URI" //需要裁剪地图片URI
         val ARG_ASPECT_X = "ASPECT_X"
         val ARG_ASPECT_Y = "ASPECT_Y"
         val ARG_OUTPUT_X = "OUTPUT_X"
         val ARG_OUTPUT_Y = "OUTPUT_Y"
-        private val REQUEST_CROP = 742
-        private val KEY_FILE_URI = "CROP_FILE_URI"
     }
 }

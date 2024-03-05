@@ -2,6 +2,7 @@
 [![](https://jitpack.io/v/github2136/PhotoPicker.svg)](https://jitpack.io/#github2136/PhotoPicker)  
 使用该库还需要引用以下库  
 **com.github.chrisbanes:PhotoView:2.1.3**  
+**com.github.yalantis:ucrop:2.2.8**
 
 **样式控制**  
 * **pickerToolBarBg** 标题颜色  

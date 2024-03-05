@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -12,34 +11,57 @@
         android:id="@+id/im_select_img"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="选择图片"/>
+        android:text="选择图片" />
 
     <Button
         android:id="@+id/im_select_imgs"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="选择多张图片"/>
+        android:text="选择多张图片" />
 
     <Button
         android:id="@+id/im_capture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="拍图片"/>
+        android:text="拍图片" />
 
     <Button
         android:id="@+id/im_crop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="拍图片，并裁剪"/>
+        android:text="拍图片，并裁剪" />
+
+    <Button
+        android:id="@+id/im_crop2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="选图片，并裁剪" />
+
     <Button
         android:id="@+id/im_preview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="查看图片"/>
+        android:text="查看图片" />
+
     <Button
         android:id="@+id/im_preview2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="查看网络"/>
+        android:text="查看网络" />
 
+    <TextView
+        android:id="@+id/tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/llImg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"></LinearLayout>
+    </HorizontalScrollView>
 </LinearLayout>
