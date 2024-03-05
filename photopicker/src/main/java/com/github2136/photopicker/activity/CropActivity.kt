@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -18,9 +17,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.github2136.photopicker.R
-import com.github2136.photopicker.other.PhotoCommonUtil
 import com.github2136.photopicker.other.PhotoFileUtil
-import com.github2136.photopicker.other.PhotoSPUtil
 import com.yalantis.ucrop.UCrop
 import java.io.File
 
@@ -33,6 +30,7 @@ import java.io.File
  * 默认存储只外部私有图片目录下，或在application中添加name为photo_picker_path的<meta>，私有目录下的图片不能添加到媒体库中，选择图片时将会无法查看到
  * intent.data返回图片URI，可使用PhotoFileUtil.getFileAbsolutePath(this, intent.data)将URI转换为物理路径
  *
+ * ARG_CORE_URI 图片保存uri
  * api>=29
  * photo_picker_path表示为Picture下级目录
  */
@@ -84,7 +82,7 @@ class CropActivity : AppCompatActivity() {
     }
 
     fun initCorp() {
-        if (!(intent.hasExtra(ARG_CROP_URI) &&
+        if (!(intent.hasExtra(ARG_IMAGE_URI) &&
                 intent.hasExtra(ARG_ASPECT_X) &&
                 intent.hasExtra(ARG_ASPECT_Y) &&
                 intent.hasExtra(ARG_OUTPUT_X) &&
@@ -93,13 +91,16 @@ class CropActivity : AppCompatActivity() {
             Toast.makeText(this, "缺少参数", Toast.LENGTH_SHORT).show()
             finish()
         } else {
-            val img = intent.getParcelableExtra<Uri>(ARG_CROP_URI)
+            val img = intent.getParcelableExtra<Uri>(ARG_IMAGE_URI)
             val aspX = intent.getIntExtra(ARG_ASPECT_X, 0)
             val aspY = intent.getIntExtra(ARG_ASPECT_Y, 0)
             val outX = intent.getIntExtra(ARG_OUTPUT_X, 0)
             val outY = intent.getIntExtra(ARG_OUTPUT_Y, 0)
-
-            val mOutUri = insert(PhotoFileUtil.createFileName(".jpg"))
+            val mOutUri = if (intent.hasExtra(ARG_CORE_URI)) {
+                intent.getParcelableExtra(ARG_CORE_URI)
+            } else {
+                insert(PhotoFileUtil.createFileName(".jpg"))
+            }
 
             // mSpUtil.edit()
             //     .putValue(KEY_FILE_URI, mOutUri.toString())
@@ -156,7 +157,6 @@ class CropActivity : AppCompatActivity() {
     private fun insert(fileName: String): Uri? {
         val contentValues = ContentValues(1)
         if (Build.VERSION.SDK_INT < 29) {
-            val filePath: String
             val file: File = File(photoPath, PhotoFileUtil.createFileName(".jpg"))
             if (!file.parentFile.exists()) {
                 file.parentFile.mkdirs()
@@ -227,10 +227,11 @@ class CropActivity : AppCompatActivity() {
     }
 
     companion object {
-        val ARG_CROP_URI = "CROP_URI" //需要裁剪地图片URI
-        val ARG_ASPECT_X = "ASPECT_X"
-        val ARG_ASPECT_Y = "ASPECT_Y"
-        val ARG_OUTPUT_X = "OUTPUT_X"
-        val ARG_OUTPUT_Y = "OUTPUT_Y"
+        const val ARG_IMAGE_URI = "IMAGE_URI" //需要裁剪地图片URI
+        const val ARG_CORE_URI = "CORE_URI" //裁剪保存URI
+        const val ARG_ASPECT_X = "ASPECT_X"
+        const val ARG_ASPECT_Y = "ASPECT_Y"
+        const val ARG_OUTPUT_X = "OUTPUT_X"
+        const val ARG_OUTPUT_Y = "OUTPUT_Y"
     }
 }

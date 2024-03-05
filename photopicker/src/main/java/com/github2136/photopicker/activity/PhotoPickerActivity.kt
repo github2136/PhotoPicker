@@ -568,8 +568,8 @@ class PhotoPickerActivity : AppCompatActivity() {
     companion object {
         private val REQUEST_PHOTO_VIEW = 434
         private val REQUEST_FOLDER = 525
-        val ARG_RESULT = "RESULT" //结果图片路径集合
-        val ARG_RESULT_URI = "RESULT_URI" //结果图片路径Uri集合
-        val ARG_PICKER_COUNT = "PICKER_COUNT" //所选图片数量
+        const val ARG_RESULT = "RESULT" //结果图片路径集合
+        const val ARG_RESULT_URI = "RESULT_URI" //结果图片路径Uri集合
+        const val ARG_PICKER_COUNT = "PICKER_COUNT" //所选图片数量
     }
 }

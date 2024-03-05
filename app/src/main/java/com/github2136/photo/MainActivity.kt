@@ -3,7 +3,6 @@ package com.github2136.photo
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.LinearLayout.LayoutParams
@@ -21,7 +20,6 @@ import kotlinx.android.synthetic.main.activity_main.im_preview
 import kotlinx.android.synthetic.main.activity_main.im_preview2
 import kotlinx.android.synthetic.main.activity_main.im_select_img
 import kotlinx.android.synthetic.main.activity_main.im_select_imgs
-import java.io.File
 
 class MainActivity : AppCompatActivity() {
     var selectPaths: ArrayList<String> = ArrayList()
@@ -115,7 +113,7 @@ class MainActivity : AppCompatActivity() {
                 3 -> {
                     val result = data!!.data
                     val intent = Intent(this@MainActivity, CropActivity::class.java)
-                    intent.putExtra(CropActivity.ARG_CROP_URI, result)
+                    intent.putExtra(CropActivity.ARG_IMAGE_URI, result)
                     intent.putExtra(CropActivity.ARG_ASPECT_X, 1)
                     intent.putExtra(CropActivity.ARG_ASPECT_Y, 1)
                     intent.putExtra(CropActivity.ARG_OUTPUT_X, 200)
@@ -149,7 +147,7 @@ class MainActivity : AppCompatActivity() {
                 6 -> {
                     val uri = data!!.getParcelableArrayListExtra<Uri>(PhotoPickerActivity.ARG_RESULT_URI)!!
                     val intent = Intent(this@MainActivity, CropActivity::class.java)
-                    intent.putExtra(CropActivity.ARG_CROP_URI, uri.first())
+                    intent.putExtra(CropActivity.ARG_IMAGE_URI, uri.first())
                     intent.putExtra(CropActivity.ARG_ASPECT_X, 1)
                     intent.putExtra(CropActivity.ARG_ASPECT_Y, 1)
                     intent.putExtra(CropActivity.ARG_OUTPUT_X, 200)

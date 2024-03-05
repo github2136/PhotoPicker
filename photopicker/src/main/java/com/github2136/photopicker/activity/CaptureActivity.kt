@@ -25,6 +25,7 @@ import java.io.File
  * 图片拍摄
  * 默认存储只外部私有图片目录下，或在application中添加name为photo_picker_path的<meta>，私有目录下的图片不能添加到媒体库中，选择图片时将会无法查看到
  * intent.data返回图片URI，可使用PhotoFileUtil.getFileAbsolutePath(this, intent.data)将URI转换为物理路径
+ * ARG_FILE_URI 图片保存uri
  *
  * api>=29
  * photo_picker_path表示为Picture下级目录
@@ -42,8 +43,10 @@ class CaptureActivity : AppCompatActivity() {
                     mPhotoPath = metaData.getString("photo_picker_path")
                     if (!TextUtils.isEmpty(mPhotoPath)) {
                         if (Build.VERSION.SDK_INT < 29) {
+                            //外部根目录
                             mPhotoPath = PhotoFileUtil.getExternalStorageRootPath() + File.separator + mPhotoPath
                         } else {
+                            //Picture下级目录
                             mPhotoPath = Environment.DIRECTORY_PICTURES + File.separator + mPhotoPath
                         }
                     }
@@ -53,6 +56,7 @@ class CaptureActivity : AppCompatActivity() {
             }
 
             if (TextUtils.isEmpty(mPhotoPath)) {
+                //外部私有目录
                 mPhotoPath = PhotoFileUtil.getExternalStoragePrivatePicPath(this)
             }
             return mPhotoPath
@@ -78,7 +82,11 @@ class CaptureActivity : AppCompatActivity() {
 
     fun initCapture() {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        val mShootUri = insert(PhotoFileUtil.createFileName(".jpg"))
+        val mShootUri = if (intent.hasExtra(ARG_FILE_URI)) {
+            intent.getParcelableExtra(ARG_FILE_URI)
+        } else {
+            insert(PhotoFileUtil.createFileName(".jpg"))
+        }
         mSpUtil.edit()
             .putValue(KEY_FILE_URI, mShootUri.toString())
             .apply()
@@ -179,7 +187,7 @@ class CaptureActivity : AppCompatActivity() {
     }
 
     companion object {
-        // val ARG_FILE_PATH = "FILE_PATH" //图片保存目录
+        const val ARG_FILE_URI = "FILE_URI" //图片保存Uri
         private val REQUEST_CAPTURE = 706
         //文件Uri
         private val KEY_FILE_URI = "CAPTURE_FILE_URI"
