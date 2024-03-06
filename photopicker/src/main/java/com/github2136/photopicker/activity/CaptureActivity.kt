@@ -81,12 +81,12 @@ class CaptureActivity : AppCompatActivity() {
     }
 
     fun initCapture() {
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         val mShootUri = if (intent.hasExtra(ARG_FILE_URI)) {
             intent.getParcelableExtra(ARG_FILE_URI)
         } else {
             insert(PhotoFileUtil.createFileName(".jpg"))
         }
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         mSpUtil.edit()
             .putValue(KEY_FILE_URI, mShootUri.toString())
             .apply()

@@ -96,8 +96,8 @@ class CropActivity : AppCompatActivity() {
             val aspY = intent.getIntExtra(ARG_ASPECT_Y, 0)
             val outX = intent.getIntExtra(ARG_OUTPUT_X, 0)
             val outY = intent.getIntExtra(ARG_OUTPUT_Y, 0)
-            val mOutUri = if (intent.hasExtra(ARG_CORE_URI)) {
-                intent.getParcelableExtra(ARG_CORE_URI)
+            val mOutUri = if (intent.hasExtra(ARG_CROP_URI)) {
+                intent.getParcelableExtra(ARG_CROP_URI)
             } else {
                 insert(PhotoFileUtil.createFileName(".jpg"))
             }
@@ -228,7 +228,7 @@ class CropActivity : AppCompatActivity() {
 
     companion object {
         const val ARG_IMAGE_URI = "IMAGE_URI" //需要裁剪地图片URI
-        const val ARG_CORE_URI = "CORE_URI" //裁剪保存URI
+        const val ARG_CROP_URI = "CROP_URI" //裁剪保存URI
         const val ARG_ASPECT_X = "ASPECT_X"
         const val ARG_ASPECT_Y = "ASPECT_Y"
         const val ARG_OUTPUT_X = "OUTPUT_X"

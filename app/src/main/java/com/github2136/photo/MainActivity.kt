@@ -2,12 +2,14 @@ package com.github2136.photo
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.LinearLayout.LayoutParams
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import com.github2136.photopicker.activity.CaptureActivity
 import com.github2136.photopicker.activity.CropActivity
 import com.github2136.photopicker.activity.PhotoPickerActivity
@@ -20,6 +22,7 @@ import kotlinx.android.synthetic.main.activity_main.im_preview
 import kotlinx.android.synthetic.main.activity_main.im_preview2
 import kotlinx.android.synthetic.main.activity_main.im_select_img
 import kotlinx.android.synthetic.main.activity_main.im_select_imgs
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
     var selectPaths: ArrayList<String> = ArrayList()
@@ -42,7 +45,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         im_capture.setOnClickListener {
-            val intent = Intent(this@MainActivity, CaptureActivity::class.java)
+            val intent = Intent(this@MainActivity, CaptureActivity::class.java).apply {
+                val fileUri: Uri
+                val file = File(PhotoFileUtil.getExternalStoragePrivatePicPath(this@MainActivity) + "/" + PhotoFileUtil.createFileName(".jpg"))
+                if (Build.VERSION.SDK_INT >= 24) {
+                    fileUri = FileProvider.getUriForFile(this@MainActivity, BuildConfig.APPLICATION_ID + ".fileprovider", file)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                } else {
+                    fileUri = Uri.fromFile(file)
+                }
+                putExtra(CaptureActivity.ARG_FILE_URI, fileUri)
+            }
             startActivityForResult(intent, 2)
         }
 
@@ -104,7 +118,7 @@ class MainActivity : AppCompatActivity() {
                     llImg.removeAllViews()
                     val result = data!!.data
                     tv.append("path :$result\n")
-                    tv.append("path :${PhotoFileUtil.getFileAbsolutePath(this, result!!)!!}\n")
+                    // tv.append("path :${PhotoFileUtil.getFileAbsolutePath(this, result!!)}\n")
                     llImg.addView(ImageView(this).apply {
                         layoutParams = LayoutParams(300, 300)
                         setImageURI(result)
@@ -125,7 +139,7 @@ class MainActivity : AppCompatActivity() {
                     llImg.removeAllViews()
                     val result = data!!.data
                     tv.append("path :$result\n")
-                    tv.append("path :${PhotoFileUtil.getFileAbsolutePath(this, result!!)!!}\n")
+                    // tv.append("path :${PhotoFileUtil.getFileAbsolutePath(this, result!!)}\n")
                     llImg.addView(ImageView(this).apply {
                         layoutParams = LayoutParams(300, 300)
                         setImageURI(result)
@@ -152,6 +166,16 @@ class MainActivity : AppCompatActivity() {
                     intent.putExtra(CropActivity.ARG_ASPECT_Y, 1)
                     intent.putExtra(CropActivity.ARG_OUTPUT_X, 200)
                     intent.putExtra(CropActivity.ARG_OUTPUT_Y, 200)
+                    val fileUri: Uri
+                    val file = File(PhotoFileUtil.getExternalStoragePrivatePicPath(this@MainActivity) + "/" + PhotoFileUtil.createFileName(".jpg"))
+                    if (Build.VERSION.SDK_INT >= 24) {
+                        fileUri = FileProvider.getUriForFile(this@MainActivity, BuildConfig.APPLICATION_ID + ".fileprovider", file)
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                    } else {
+                        fileUri = Uri.fromFile(file)
+                    }
+                    intent.putExtra(CropActivity.ARG_CROP_URI, fileUri)
                     startActivityForResult(intent, 4)
                 }
             }
