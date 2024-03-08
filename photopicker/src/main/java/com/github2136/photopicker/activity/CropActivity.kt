@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -19,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.github2136.photopicker.R
 import com.github2136.photopicker.other.PhotoFileUtil
 import com.yalantis.ucrop.UCrop
+import com.yalantis.ucrop.UCropActivity
 import java.io.File
 
 /**
@@ -106,8 +108,15 @@ class CropActivity : AppCompatActivity() {
             //     .putValue(KEY_FILE_URI, mOutUri.toString())
             //     .apply()
             UCrop.of(img!!, mOutUri!!)
-                .withAspectRatio(aspX.toFloat(), aspY.toFloat())
-                .withMaxResultSize(outX, outY)
+                .withOptions(UCrop.Options().apply {
+                    withAspectRatio(aspX.toFloat(), aspY.toFloat())
+                    withMaxResultSize(outX, outY)
+                    setAllowedGestures(UCropActivity.ALL, UCropActivity.ALL, UCropActivity.ALL)
+                    setToolbarColor(resources.getColor(R.color.pickerToolBarBg))
+                    setStatusBarColor(resources.getColor(R.color.pickerToolBarDark))
+                    setToolbarWidgetColor(resources.getColor(R.color.pickerToolBarText))
+                    setActiveControlsWidgetColor(resources.getColor(R.color.pickerAccent))
+                })
                 .start(this)
             // val intent = Intent("com.android.camera.action.CROP")
             // if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
