@@ -207,7 +207,7 @@ class PhotoPickerActivity : AppCompatActivity() {
                 cursor = contentResolver.query(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                     null,
-                    MediaStore.Images.ImageColumns.SIZE + " > 0 and " + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME + " is not null) group by (" + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,
+                    MediaStore.Images.ImageColumns.SIZE + " > 0 and " + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME + " is not null",
                     null,
                     MediaStore.Images.ImageColumns.DATE_TAKEN + " desc"
                 )
@@ -278,6 +278,7 @@ class PhotoPickerActivity : AppCompatActivity() {
                     mFolderName.add(img.bucket_display_name)
                 } while (cursor.moveToNext())
             }
+            mFolderName = mFolderName.groupBy { it }.keys.toMutableList()
             cursor.close()
         }
     }
