@@ -206,7 +206,7 @@ class PhotoPickerActivity : AppCompatActivity() {
             } else {
                 cursor = contentResolver.query(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    null,
+                    arrayOf(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME),
                     MediaStore.Images.ImageColumns.SIZE + " > 0 and " + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME + " is not null",
                     null,
                     MediaStore.Images.ImageColumns.DATE_TAKEN + " desc"
@@ -227,55 +227,9 @@ class PhotoPickerActivity : AppCompatActivity() {
 
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                val columnIndex1 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DESCRIPTION)
-                val columnIndex2 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.PICASA_ID)
-                val columnIndex3 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.IS_PRIVATE)
-                val columnIndex4 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.LATITUDE)
-                val columnIndex5 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.LONGITUDE)
-                val columnIndex6 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATE_TAKEN)
-                val columnIndex7 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.ORIENTATION)
-                val columnIndex8 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.MINI_THUMB_MAGIC)
-                val columnIndex9 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.BUCKET_ID)
                 val columnIndex10 = cursor.getColumnIndex(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME)
-
-                val columnIndex11 = cursor.getColumnIndex(MediaStore.MediaColumns._ID)
-
-                val columnIndex12 = cursor.getColumnIndex(MediaStore.MediaColumns.DATA)
-                val columnIndex13 = cursor.getColumnIndex(MediaStore.MediaColumns.SIZE)
-                val columnIndex14 = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
-                val columnIndex15 = cursor.getColumnIndex(MediaStore.MediaColumns.TITLE)
-                val columnIndex16 = cursor.getColumnIndex(MediaStore.MediaColumns.DATE_ADDED)
-                val columnIndex17 = cursor.getColumnIndex(MediaStore.MediaColumns.DATE_MODIFIED)
-                val columnIndex18 = cursor.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE)
-                val columnIndex19 = cursor.getColumnIndex(MediaStore.MediaColumns.WIDTH)
-                val columnIndex20 = cursor.getColumnIndex(MediaStore.MediaColumns.HEIGHT)
-
                 do {
-                    val img = PhotoPicker(
-                        cursor.getString(columnIndex1),
-                        cursor.getString(columnIndex2),
-                        cursor.getInt(columnIndex3),
-                        cursor.getDouble(columnIndex4),
-                        cursor.getDouble(columnIndex5),
-                        cursor.getInt(columnIndex6),
-                        cursor.getInt(columnIndex7),
-                        cursor.getInt(columnIndex8),
-                        cursor.getString(columnIndex9),
-                        cursor.getString(columnIndex10),
-
-                        cursor.getLong(columnIndex11),
-
-                        cursor.getString(columnIndex12),
-                        cursor.getLong(columnIndex13),
-                        cursor.getString(columnIndex14),
-                        cursor.getString(columnIndex15),
-                        cursor.getLong(columnIndex16),
-                        cursor.getLong(columnIndex17),
-                        cursor.getString(columnIndex18),
-                        cursor.getInt(columnIndex19),
-                        cursor.getInt(columnIndex20)
-                    )
-                    mFolderName.add(img.bucket_display_name)
+                    mFolderName.add(cursor.getString(columnIndex10))
                 } while (cursor.moveToNext())
             }
             mFolderName = mFolderName.groupBy { it }.keys.toMutableList()
