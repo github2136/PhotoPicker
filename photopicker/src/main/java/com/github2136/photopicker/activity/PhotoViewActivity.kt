@@ -12,6 +12,9 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.TranslateAnimation
+import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
@@ -20,12 +23,12 @@ import androidx.appcompat.widget.Toolbar
 import androidx.viewpager.widget.ViewPager
 import com.github2136.photopicker.R
 import com.github2136.photopicker.adapter.PhotoAdapter
+import com.github2136.photopicker.entity.PhotoEntity
 import com.github2136.photopicker.fragment.PhotoFragment
-import kotlinx.android.synthetic.main.activity_picker_view.*
 
 /**
  *      查看图片
- *      ARG_PHOTOS显示图片路径
+ *      ARG_PHOTO_VIEW显示图片对象
  *      ARG_CURRENT_INDEX显示的图片下标
  *      ARG_PICKER_PATHS已选中图片路径
  *      ARG_PICKER_COUNT可选图片数量
@@ -33,29 +36,19 @@ import kotlinx.android.synthetic.main.activity_picker_view.*
  *      返回路径的key为ARG_PICKER_PATHS
  */
 class PhotoViewActivity : AppCompatActivity(), PhotoFragment.OnFragmentInteractionListener {
-    val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-
-    private val mPhotoPaths by lazy { intent.getStringArrayListExtra(ARG_PHOTOS) }
+    private val mPhotoView by lazy { intent.getParcelableArrayListExtra<PhotoEntity>(ARG_PHOTO_VIEW) }
     private val mPickerPaths by lazy { intent.getStringArrayListExtra(ARG_PICKER_PATHS) }
     private var mPickerCount: Int = 0
     private var mCurrentIndex: Int = 0
+    val vp_photo by lazy { findViewById<ViewPager>(R.id.vp_photo) }
+    val ib_check by lazy { findViewById<ImageButton>(R.id.ib_check) }
+    val ll_check by lazy { findViewById<LinearLayout>(R.id.ll_check) }
+    val tv_title by lazy { findViewById<TextView>(R.id.tv_title) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_picker_view)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkPermissionDenied(permissions)) {
-            AlertDialog.Builder(this)
-                .setTitle("权限获取")
-                .setMessage("查看本地图片需要文件读写权限。是否立刻授权？")
-                .setPositiveButton("立即授权") { _, _ ->
-                    requestPermissions(permissions, 1)
-                }
-                .setNegativeButton("取消") { _, _ ->
-                    finish()
-                }.show()
-        } else {
-            initPhoto()
-        }
+        initPhoto()
     }
 
     fun initPhoto() {
@@ -66,10 +59,9 @@ class PhotoViewActivity : AppCompatActivity(), PhotoFragment.OnFragmentInteracti
 
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
-        vp_photo.adapter = PhotoAdapter(supportFragmentManager, mPhotoPaths!!)
+        vp_photo.adapter = PhotoAdapter(supportFragmentManager, mPhotoView!!)
         vp_photo.currentItem = mCurrentIndex
         vp_photo.addOnPageChangeListener(mPagerChangeListener)
-
 
         ib_check!!.setOnClickListener(mOnClickListener)
         setTitle()
@@ -79,13 +71,13 @@ class PhotoViewActivity : AppCompatActivity(), PhotoFragment.OnFragmentInteracti
     }
 
     private fun setTitle() {
-        title = String.format("%d/%d", vp_photo.currentItem + 1, mPhotoPaths!!.size) //标题
+        title = String.format("%d/%d", vp_photo.currentItem + 1, mPhotoView!!.size) //标题
         setBottom()
     }
 
     private fun setBottom() {
         if (mPickerPaths != null) {
-            if (mPickerPaths!!.contains(mPhotoPaths!![vp_photo.currentItem])) {
+            if (mPickerPaths!!.contains(mPhotoView!![vp_photo.currentItem].photoPath)) {
                 ib_check.setImageResource(R.drawable.ic_photo_check_box)
             } else {
                 ib_check.setImageResource(R.drawable.ic_photo_check_box_outline)
@@ -95,7 +87,7 @@ class PhotoViewActivity : AppCompatActivity(), PhotoFragment.OnFragmentInteracti
     }
 
     private val mOnClickListener = View.OnClickListener {
-        val currentPath = mPhotoPaths!![vp_photo.currentItem]
+        val currentPath = mPhotoView!![vp_photo.currentItem].photoPath
         if (mPickerPaths!!.contains(currentPath)) {
             mPickerPaths!!.remove(currentPath)
         } else {
@@ -168,15 +160,6 @@ class PhotoViewActivity : AppCompatActivity(), PhotoFragment.OnFragmentInteracti
         }
     }
 
-    override fun onRestart() {
-        super.onRestart()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkPermissionDenied(permissions)) {
-            requestPermissions(permissions, 1)
-        } else {
-            initPhoto()
-        }
-    }
-
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -235,7 +218,7 @@ class PhotoViewActivity : AppCompatActivity(), PhotoFragment.OnFragmentInteracti
     }
 
     companion object {
-        const val ARG_PHOTOS = "PHOTOS" //显示的图片路径
+        const val ARG_PHOTO_VIEW = "PHOTO_VIEW" //显示的图片对象
         const val ARG_PICKER_PATHS = "PICKER_PATHS" //所选图片路径
         const val ARG_CURRENT_INDEX = "CURRENT_INDEX" //显示的图片下标
         const val ARG_PICKER_COUNT = "PICKER_COUNT" //可选图片数量

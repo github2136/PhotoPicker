@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.LinearLayout.LayoutParams
@@ -14,14 +15,8 @@ import com.github2136.photopicker.activity.CaptureActivity
 import com.github2136.photopicker.activity.CropActivity
 import com.github2136.photopicker.activity.PhotoPickerActivity
 import com.github2136.photopicker.activity.PhotoViewActivity
+import com.github2136.photopicker.entity.PhotoEntity
 import com.github2136.photopicker.other.PhotoFileUtil
-import kotlinx.android.synthetic.main.activity_main.im_capture
-import kotlinx.android.synthetic.main.activity_main.im_crop
-import kotlinx.android.synthetic.main.activity_main.im_crop2
-import kotlinx.android.synthetic.main.activity_main.im_preview
-import kotlinx.android.synthetic.main.activity_main.im_preview2
-import kotlinx.android.synthetic.main.activity_main.im_select_img
-import kotlinx.android.synthetic.main.activity_main.im_select_imgs
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -32,19 +27,19 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        im_select_img.setOnClickListener {
+        findViewById<Button>(R.id.im_select_img).setOnClickListener {
             val intent = Intent(this@MainActivity, PhotoPickerActivity::class.java)
             intent.putExtra(PhotoPickerActivity.ARG_PICKER_COUNT, 1)
             startActivityForResult(intent, 1)
         }
 
-        im_select_imgs.setOnClickListener {
+        findViewById<Button>(R.id.im_select_imgs).setOnClickListener {
             val intent = Intent(this@MainActivity, PhotoPickerActivity::class.java)
             intent.putExtra(PhotoPickerActivity.ARG_PICKER_COUNT, 5)
             startActivityForResult(intent, 1)
         }
 
-        im_capture.setOnClickListener {
+        findViewById<Button>(R.id.im_capture).setOnClickListener {
             val intent = Intent(this@MainActivity, CaptureActivity::class.java).apply {
                 val fileUri: Uri
                 val file = File(PhotoFileUtil.getExternalStoragePrivatePicPath(this@MainActivity) + "/" + PhotoFileUtil.createFileName(".jpg"))
@@ -60,30 +55,30 @@ class MainActivity : AppCompatActivity() {
             startActivityForResult(intent, 2)
         }
 
-        im_crop.setOnClickListener {
+        findViewById<Button>(R.id.im_crop).setOnClickListener {
             val intent = Intent(this@MainActivity, CaptureActivity::class.java)
             startActivityForResult(intent, 3)
         }
-        im_crop2.setOnClickListener {
+        findViewById<Button>(R.id.im_crop2).setOnClickListener {
             val intent = Intent(this@MainActivity, PhotoPickerActivity::class.java)
             intent.putExtra(PhotoPickerActivity.ARG_PICKER_COUNT, 1)
             startActivityForResult(intent, 6)
         }
 
-        im_preview.setOnClickListener {
+        findViewById<Button>(R.id.im_preview).setOnClickListener {
             val intent = Intent(this@MainActivity, PhotoViewActivity::class.java)
-            intent.putStringArrayListExtra(PhotoViewActivity.ARG_PHOTOS, selectPaths)
+            intent.putParcelableArrayListExtra(PhotoViewActivity.ARG_PHOTO_VIEW, selectPaths.map { PhotoEntity(it, "") } as ArrayList<PhotoEntity>)
             intent.putExtra(PhotoViewActivity.ARG_PICKER_COUNT, 3)
             intent.putStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS, selectPaths)
             startActivityForResult(intent, 5)
         }
-        im_preview2.setOnClickListener {
+        findViewById<Button>(R.id.im_preview2).setOnClickListener {
             val intent = Intent(this@MainActivity, PhotoViewActivity::class.java)
-            intent.putStringArrayListExtra(
-                PhotoViewActivity.ARG_PHOTOS,
+            intent.putParcelableArrayListExtra(
+                PhotoViewActivity.ARG_PHOTO_VIEW,
                 arrayListOf(
-                    "http://pica.zhimg.com/v2-7cb8b1ea5e11779e25b4b35d52b777f2_l.jpg?source=32738c0c",
-                    "https://pica.zhimg.com/v2-7cb8b1ea5e11779e25b4b35d52b777f2_l.jpg?source=32738c0c"
+                    PhotoEntity("http://pica.zhimg.com/v2-7cb8b1ea5e11779e25b4b35d52b777f2_l.jpg?source=32738c0c", "说明文字说明文字说明文字说明文字 说明文字说明文字 说明文字说明文字说明文字说明文字v说明文字说明文字说明文字说明文字说明文字说明文字v 说明文字  说明文字说明文字v说明文字 v说明文字 v说明文字"),
+                    PhotoEntity("https://pica.zhimg.com/v2-7cb8b1ea5e11779e25b4b35d52b777f2_l.jpg?source=32738c0c", "说明文字")
                 )
             )
             startActivity(intent)
@@ -97,12 +92,12 @@ class MainActivity : AppCompatActivity() {
                 1 -> {
                     tv.text = null
                     llImg.removeAllViews()
-                    val result = data!!.getStringArrayListExtra(PhotoPickerActivity.ARG_RESULT)!!
-                    for (i in result.indices) {
-                        val s = result[i]
-                        tv.append("path :$s\n")
-                    }
-                    val uri = data.getParcelableArrayListExtra<Uri>(PhotoPickerActivity.ARG_RESULT_URI)!!
+                    // val result = data!!.getStringArrayListExtra(PhotoPickerActivity.ARG_RESULT)!!
+                    // for (i in result.indices) {
+                    //     val s = result[i]
+                    //     tv.append("path :$s\n")
+                    // }
+                    val uri = data!!.getParcelableArrayListExtra<Uri>(PhotoPickerActivity.ARG_RESULT_URI)!!
                     selectPaths = uri.map { it.toString() } as ArrayList<String>
                     for (i in uri.indices) {
                         val s = uri[i]

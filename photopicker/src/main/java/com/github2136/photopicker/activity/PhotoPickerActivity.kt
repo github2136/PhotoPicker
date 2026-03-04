@@ -3,16 +3,12 @@ package com.github2136.photopicker.activity
 import android.Manifest
 import android.app.Activity
 import android.content.ContentResolver
-import android.content.ContentUris
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
-import android.media.browse.MediaBrowser
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.CancellationSignal
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
@@ -30,12 +26,10 @@ import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.RecyclerView
 import com.github2136.photopicker.R
 import com.github2136.photopicker.adapter.PhotoPickerAdapter
+import com.github2136.photopicker.entity.PhotoEntity
 import com.github2136.photopicker.entity.PhotoPicker
 import com.github2136.photopicker.other.PhotoFileUtil
 import com.github2136.photopicker.other.PickerImageItemDecoration
-import kotlinx.android.synthetic.main.activity_photo_picker.*
-import kotlinx.android.synthetic.main.view_picker_title.*
-import java.util.*
 
 /**
  *      选择图片
@@ -52,6 +46,9 @@ class PhotoPickerActivity : AppCompatActivity() {
     private lateinit var mFolderDialog: AlertDialog
     private lateinit var mSelectFolderName: String
     val handle = Handler(Looper.getMainLooper())
+    val tb_title by lazy { findViewById<Toolbar>(R.id.tb_title) }
+    val btn_preview by lazy { findViewById<Button>(R.id.btn_preview) }
+    val btn_folder by lazy { findViewById<Button>(R.id.btn_folder) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,19 +113,19 @@ class PhotoPickerActivity : AppCompatActivity() {
                 imgs.add(photoPicker.data!!)
                 val intent = Intent()
                 intent.putParcelableArrayListExtra(ARG_RESULT_URI, uris)
-                intent.putStringArrayListExtra(ARG_RESULT, imgs)
+                // intent.putStringArrayListExtra(ARG_RESULT, imgs)
                 setResult(Activity.RESULT_OK, intent)
                 finish()
             } else {
                 val intent = Intent(this@PhotoPickerActivity, PhotoViewActivity::class.java)
                 val imgs = ArrayList<String>()
                 for (img in mPhotoPickerAdapter.getItem()!!) {
-                    imgs.add(img.data!!)
+                    imgs.add(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, img._id.toString()).toString())
                 }
-                intent.putStringArrayListExtra(PhotoViewActivity.ARG_PHOTOS, imgs)
+                intent.putParcelableArrayListExtra(PhotoViewActivity.ARG_PHOTO_VIEW, imgs.map { PhotoEntity(it, "") } as ArrayList<PhotoEntity>)
                 intent.putExtra(PhotoViewActivity.ARG_CURRENT_INDEX, position)
 
-                intent.putStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS, mPhotoPickerAdapter.pickerPaths)
+                intent.putStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS, mPhotoPickerAdapter.pickerUris.map { it.toString() } as ArrayList<String>)
                 intent.putExtra(PhotoViewActivity.ARG_PICKER_COUNT, mPickerCount)
 
                 startActivityForResult(intent, REQUEST_PHOTO_VIEW)
@@ -154,7 +151,7 @@ class PhotoPickerActivity : AppCompatActivity() {
                 mPhotoPickerAdapter.complete = false
                 getImages()
                 mPhotoPickerAdapter.notifyDataSetChanged()
-                setToolbarTitle(mPhotoPickerAdapter.pickerPaths.size, mSelectFolderName)
+                setToolbarTitle(mPhotoPickerAdapter.pickerUris.size, mSelectFolderName)
             }
             .create()
     }
@@ -164,11 +161,10 @@ class PhotoPickerActivity : AppCompatActivity() {
             mFolderDialog.show()
         } else if (v.id == R.id.btn_preview) {
             val intent = Intent(this@PhotoPickerActivity, PhotoViewActivity::class.java)
-
-            intent.putStringArrayListExtra(PhotoViewActivity.ARG_PHOTOS, mPhotoPickerAdapter.pickerPaths)
+            intent.putParcelableArrayListExtra(PhotoViewActivity.ARG_PHOTO_VIEW, mPhotoPickerAdapter.pickerUris.map { PhotoEntity(it.toString(), "") } as ArrayList<PhotoEntity>)
             intent.putExtra(PhotoViewActivity.ARG_CURRENT_INDEX, 0)
 
-            intent.putStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS, mPhotoPickerAdapter.pickerPaths)
+            intent.putStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS, mPhotoPickerAdapter.pickerUris.map { it.toString() } as ArrayList<String>)
             intent.putExtra(PhotoViewActivity.ARG_PICKER_COUNT, mPickerCount)
 
             startActivityForResult(intent, REQUEST_PHOTO_VIEW)
@@ -386,7 +382,6 @@ class PhotoPickerActivity : AppCompatActivity() {
                 menu?.findItem(R.id.menu_ok)?.isVisible = false
             }
         }
-
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -402,11 +397,9 @@ class PhotoPickerActivity : AppCompatActivity() {
             finish()
         } else if (i == R.id.menu_ok) {
             val uris = mPhotoPickerAdapter.pickerUris
-            val imgs = mPhotoPickerAdapter.pickerPaths
-            if (imgs.isNotEmpty()) {
+            if (uris.isNotEmpty()) {
                 val intent = Intent()
                 intent.putParcelableArrayListExtra(ARG_RESULT_URI, uris)
-                intent.putStringArrayListExtra(ARG_RESULT, imgs)
                 setResult(Activity.RESULT_OK, intent)
                 finish()
             } else {
@@ -422,6 +415,7 @@ class PhotoPickerActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 REQUEST_FOLDER -> {
@@ -437,7 +431,6 @@ class PhotoPickerActivity : AppCompatActivity() {
                     if (mMimeType.contains(mimeTypeMap.getMimeTypeFromExtension(suffix))) {
                         path.add(p)
                         uri.add(data.data!!)
-                        intent.putStringArrayListExtra(ARG_RESULT, path)
                         intent.putParcelableArrayListExtra(ARG_RESULT_URI, uri)
                         setResult(Activity.RESULT_OK, intent)
                         finish()
@@ -448,7 +441,7 @@ class PhotoPickerActivity : AppCompatActivity() {
 
                 REQUEST_PHOTO_VIEW -> {
                     val pickerPath = data!!.getStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS)!!
-                    mPhotoPickerAdapter.pickerPaths = pickerPath
+                    mPhotoPickerAdapter.pickerUris = pickerPath.map { Uri.parse(it) } as ArrayList<Uri>
                     mPhotoPickerAdapter.notifyDataSetChanged()
                     setToolbarTitle(pickerPath.size, mSelectFolderName)
                 }
@@ -523,7 +516,6 @@ class PhotoPickerActivity : AppCompatActivity() {
     companion object {
         private val REQUEST_PHOTO_VIEW = 434
         private val REQUEST_FOLDER = 525
-        const val ARG_RESULT = "RESULT" //结果图片路径集合
         const val ARG_RESULT_URI = "RESULT_URI" //结果图片路径Uri集合
         const val ARG_PICKER_COUNT = "PICKER_COUNT" //所选图片数量
     }

@@ -1,10 +1,28 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <com.github.chrisbanes.photoview.PhotoView
         android:id="@+id/iv_photo"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/tv_photo_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#80333333"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingLeft="16dp"
+        android:paddingTop="8dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="8dp"
+        android:textColor="#CCFFFFFF"
+        android:textSize="14sp"
+        android:visibility="gone"
+        tools:text="文字说明 文字说明文字说明 文字说明文字说明 文字说明文字说明 文字说明文字说明 文字说明文字说明 文字说明文字说明 文字说明文字说明 文字说明文字说明 文字说明文字说明 文字说明文字说明 文字说明文字说明 文字说明文字说明 文字说明文字说明 文字说明"
+        tools:visibility="visible" />
 </RelativeLayout>

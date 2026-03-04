@@ -45,7 +45,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/sel_btn_tran"
-
             android:text="预览" />
     </LinearLayout>
 

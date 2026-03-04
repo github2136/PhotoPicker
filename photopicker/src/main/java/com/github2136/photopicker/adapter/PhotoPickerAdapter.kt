@@ -37,7 +37,6 @@ class PhotoPickerAdapter(val context: Context, private val mSelectCount: Int) : 
     lateinit var loadMore: () -> Unit
 
     var pickerUris: ArrayList<Uri> = arrayListOf()
-    var pickerPaths: ArrayList<String> = arrayListOf()
     private val mViewSize: Int = (context.resources.displayMetrics.widthPixels - 5 * 4) / 3
     private val mImgSize: Int
     private val layoutParams: RelativeLayout.LayoutParams
@@ -81,7 +80,7 @@ class PhotoPickerAdapter(val context: Context, private val mSelectCount: Int) : 
         }
         val uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, photoPicker._id.toString())
         val path = photoPicker.data!!
-        if (pickerPaths.contains(path)) {
+        if (pickerUris.contains(uri)) {
             ivCheck.setImageResource(R.drawable.ic_photo_check_box)
             ivCheck.setBackgroundResource(R.drawable.sha_picker_check_bg)
             check.visibility = View.VISIBLE
@@ -91,15 +90,13 @@ class PhotoPickerAdapter(val context: Context, private val mSelectCount: Int) : 
             check.visibility = View.GONE
         }
         flCheck.setOnClickListener {
-            if (pickerPaths.contains(path)) {
-                pickerPaths.remove(path)
+            if (pickerUris.contains(uri)) {
                 pickerUris.remove(uri)
                 ivCheck.setImageResource(R.drawable.ic_photo_check_box_outline)
                 ivCheck.setBackgroundColor(Color.TRANSPARENT)
                 check.visibility = View.GONE
             } else {
-                if (mSelectCount > pickerPaths.size) {
-                    pickerPaths.add(path)
+                if (mSelectCount > pickerUris.size) {
                     pickerUris.add(uri)
                     ivCheck.setImageResource(R.drawable.ic_photo_check_box)
                     ivCheck.setBackgroundResource(R.drawable.sha_picker_check_bg)
@@ -108,12 +105,11 @@ class PhotoPickerAdapter(val context: Context, private val mSelectCount: Int) : 
                     Toast.makeText(context, "最多选择 $mSelectCount 张", Toast.LENGTH_SHORT).show()
                 }
             }
-            mOnSelectChangeCallback?.selectChange(pickerPaths.size)
+            mOnSelectChangeCallback?.selectChange(pickerUris.size)
         }
     }
 
     fun clearSelectPaths() {
-        pickerPaths.clear()
         pickerUris.clear()
     }
 

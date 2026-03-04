@@ -5,12 +5,13 @@ import com.github2136.photopicker.fragment.PhotoFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
+import com.github2136.photopicker.entity.PhotoEntity
 
 /**
  * Created by yb on 2017/9/20.
  */
 
-class PhotoAdapter(fm: FragmentManager, private val mPhotoPath: List<String>) : FragmentStatePagerAdapter(fm) {
+class PhotoAdapter(fm: FragmentManager, private val mPhotoPath: List<PhotoEntity>) : FragmentStatePagerAdapter(fm) {
 
     override fun getItem(position: Int): Fragment {
         return PhotoFragment.newInstance(mPhotoPath[position])
