@@ -8,6 +8,6 @@ import kotlinx.parcelize.Parcelize
  */
 @Parcelize
 data class PhotoEntity(
-    val photoPath: String,
-    val photoInfo: String,
+    var photoPath: String,
+    var photoInfo: String,
 ): Parcelable
