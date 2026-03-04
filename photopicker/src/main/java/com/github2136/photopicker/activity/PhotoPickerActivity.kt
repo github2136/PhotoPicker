@@ -122,7 +122,7 @@ class PhotoPickerActivity : AppCompatActivity() {
                 for (img in mPhotoPickerAdapter.getItem()!!) {
                     imgs.add(Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, img._id.toString()).toString())
                 }
-                intent.putParcelableArrayListExtra(PhotoViewActivity.ARG_PHOTO_VIEW, imgs.map { PhotoEntity(it, "") } as ArrayList<PhotoEntity>)
+                intent.putParcelableArrayListExtra(PhotoViewActivity.ARG_PHOTO_ENTITY, imgs.map { PhotoEntity(it, "") } as ArrayList<PhotoEntity>)
                 intent.putExtra(PhotoViewActivity.ARG_CURRENT_INDEX, position)
 
                 intent.putStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS, mPhotoPickerAdapter.pickerUris.map { it.toString() } as ArrayList<String>)
@@ -161,7 +161,7 @@ class PhotoPickerActivity : AppCompatActivity() {
             mFolderDialog.show()
         } else if (v.id == R.id.btn_preview) {
             val intent = Intent(this@PhotoPickerActivity, PhotoViewActivity::class.java)
-            intent.putParcelableArrayListExtra(PhotoViewActivity.ARG_PHOTO_VIEW, mPhotoPickerAdapter.pickerUris.map { PhotoEntity(it.toString(), "") } as ArrayList<PhotoEntity>)
+            intent.putParcelableArrayListExtra(PhotoViewActivity.ARG_PHOTO_ENTITY, mPhotoPickerAdapter.pickerUris.map { PhotoEntity(it.toString(), "") } as ArrayList<PhotoEntity>)
             intent.putExtra(PhotoViewActivity.ARG_CURRENT_INDEX, 0)
 
             intent.putStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS, mPhotoPickerAdapter.pickerUris.map { it.toString() } as ArrayList<String>)
