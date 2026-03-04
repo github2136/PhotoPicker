@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.im_preview).setOnClickListener {
             val intent = Intent(this@MainActivity, PhotoViewActivity::class.java)
-            intent.putParcelableArrayListExtra(PhotoViewActivity.ARG_PHOTO_VIEW, selectPaths.map { PhotoEntity(it, "") } as ArrayList<PhotoEntity>)
+            intent.putParcelableArrayListExtra(PhotoViewActivity.ARG_PHOTO_ENTITY, selectPaths.map { PhotoEntity(it, "") } as ArrayList<PhotoEntity>)
             intent.putExtra(PhotoViewActivity.ARG_PICKER_COUNT, 3)
             intent.putStringArrayListExtra(PhotoViewActivity.ARG_PICKER_PATHS, selectPaths)
             startActivityForResult(intent, 5)
@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.im_preview2).setOnClickListener {
             val intent = Intent(this@MainActivity, PhotoViewActivity::class.java)
             intent.putParcelableArrayListExtra(
-                PhotoViewActivity.ARG_PHOTO_VIEW,
+                PhotoViewActivity.ARG_PHOTO_ENTITY,
                 arrayListOf(
                     PhotoEntity("http://pica.zhimg.com/v2-7cb8b1ea5e11779e25b4b35d52b777f2_l.jpg?source=32738c0c", "说明文字说明文字说明文字说明文字 说明文字说明文字 说明文字说明文字说明文字说明文字v说明文字说明文字说明文字说明文字说明文字说明文字v 说明文字  说明文字说明文字v说明文字 v说明文字 v说明文字"),
                     PhotoEntity("https://pica.zhimg.com/v2-7cb8b1ea5e11779e25b4b35d52b777f2_l.jpg?source=32738c0c", "说明文字")

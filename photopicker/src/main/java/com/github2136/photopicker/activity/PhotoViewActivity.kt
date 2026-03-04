@@ -36,7 +36,7 @@ import com.github2136.photopicker.fragment.PhotoFragment
  *      返回路径的key为ARG_PICKER_PATHS
  */
 class PhotoViewActivity : AppCompatActivity(), PhotoFragment.OnFragmentInteractionListener {
-    private val mPhotoView by lazy { intent.getParcelableArrayListExtra<PhotoEntity>(ARG_PHOTO_VIEW) }
+    private val mPhotoView by lazy { intent.getParcelableArrayListExtra<PhotoEntity>(ARG_PHOTO_ENTITY) }
     private val mPickerPaths by lazy { intent.getStringArrayListExtra(ARG_PICKER_PATHS) }
     private var mPickerCount: Int = 0
     private var mCurrentIndex: Int = 0
@@ -218,7 +218,7 @@ class PhotoViewActivity : AppCompatActivity(), PhotoFragment.OnFragmentInteracti
     }
 
     companion object {
-        const val ARG_PHOTO_VIEW = "PHOTO_VIEW" //显示的图片对象
+        const val ARG_PHOTO_ENTITY = "PHOTO_ENTITY" //显示的图片对象
         const val ARG_PICKER_PATHS = "PICKER_PATHS" //所选图片路径
         const val ARG_CURRENT_INDEX = "CURRENT_INDEX" //显示的图片下标
         const val ARG_PICKER_COUNT = "PICKER_COUNT" //可选图片数量
