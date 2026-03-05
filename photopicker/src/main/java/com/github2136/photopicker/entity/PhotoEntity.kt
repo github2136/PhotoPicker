@@ -9,5 +9,5 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class PhotoEntity(
     var photoPath: String,
-    var photoInfo: String,
-): Parcelable
+    var photoInfo: String = "",
+) : Parcelable
