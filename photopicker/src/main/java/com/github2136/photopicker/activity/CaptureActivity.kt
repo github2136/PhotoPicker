@@ -33,6 +33,7 @@ import java.io.File
 class CaptureActivity : AppCompatActivity() {
     private val mSpUtil by lazy { PhotoSPUtil.getInstance(this) }
     val permissions = arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    val permissions29 = arrayOf(Manifest.permission.CAMERA)
     private val photoPath: String?
         get() {
             var mPhotoPath: String? = null
@@ -42,12 +43,12 @@ class CaptureActivity : AppCompatActivity() {
                 if (metaData != null) {
                     mPhotoPath = metaData.getString("photo_picker_path")
                     if (!TextUtils.isEmpty(mPhotoPath)) {
-                        if (Build.VERSION.SDK_INT < 29) {
-                            //外部根目录
-                            mPhotoPath = PhotoFileUtil.getExternalStorageRootPath() + File.separator + mPhotoPath
-                        } else {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                             //Picture下级目录
                             mPhotoPath = Environment.DIRECTORY_PICTURES + File.separator + mPhotoPath
+                        } else {
+                            //外部根目录
+                            mPhotoPath = PhotoFileUtil.getExternalStorageRootPath() + File.separator + mPhotoPath
                         }
                     }
                 }
@@ -65,7 +66,17 @@ class CaptureActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_capture)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkPermissionDenied(permissions)) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && checkPermissionDenied(permissions)) {
+            AlertDialog.Builder(this)
+                .setTitle("权限获取")
+                .setMessage("照片拍摄需要摄像头权限。是否立刻授权？")
+                .setPositiveButton("立即授权") { _, _ ->
+                    requestPermissions(permissions29, 1)
+                }
+                .setNegativeButton("取消") { _, _ ->
+                    finish()
+                }.show()
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkPermissionDenied(permissions)) {
             AlertDialog.Builder(this)
                 .setTitle("权限获取")
                 .setMessage("照片拍摄需要摄像头、文件读写权限。是否立刻授权？")
@@ -113,15 +124,15 @@ class CaptureActivity : AppCompatActivity() {
      */
     private fun insert(fileName: String): Uri? {
         val contentValues = ContentValues(1)
-        if (Build.VERSION.SDK_INT < 29) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            contentValues.put(MediaStore.Images.ImageColumns.DISPLAY_NAME, fileName)
+            contentValues.put(MediaStore.Images.ImageColumns.RELATIVE_PATH, photoPath)
+        } else {
             val file = File(photoPath, PhotoFileUtil.createFileName(".jpg"))
             if (!file.parentFile.exists()) {
                 file.parentFile.mkdirs()
             }
             contentValues.put(MediaStore.Images.Media.DATA, file.absolutePath)
-        } else {
-            contentValues.put(MediaStore.Images.ImageColumns.DISPLAY_NAME, fileName)
-            contentValues.put(MediaStore.Images.ImageColumns.RELATIVE_PATH, photoPath)
         }
         return contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
     }

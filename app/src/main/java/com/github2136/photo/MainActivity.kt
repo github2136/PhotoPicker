@@ -41,16 +41,16 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.im_capture).setOnClickListener {
             val intent = Intent(this@MainActivity, CaptureActivity::class.java).apply {
-                val fileUri: Uri
-                val file = File(PhotoFileUtil.getExternalStoragePrivatePicPath(this@MainActivity) + "/" + PhotoFileUtil.createFileName(".jpg"))
-                if (Build.VERSION.SDK_INT >= 24) {
-                    fileUri = FileProvider.getUriForFile(this@MainActivity, BuildConfig.APPLICATION_ID + ".fileprovider", file)
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                } else {
-                    fileUri = Uri.fromFile(file)
-                }
-                putExtra(CaptureActivity.ARG_FILE_URI, fileUri)
+                // val fileUri: Uri
+                // val file = File(PhotoFileUtil.getExternalStoragePrivatePicPath(this@MainActivity) + "/" + PhotoFileUtil.createFileName(".jpg"))
+                // if (Build.VERSION.SDK_INT >= 24) {
+                //     fileUri = FileProvider.getUriForFile(this@MainActivity, BuildConfig.APPLICATION_ID + ".fileprovider", file)
+                //     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                //     addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                // } else {
+                //     fileUri = Uri.fromFile(file)
+                // }
+                // putExtra(CaptureActivity.ARG_FILE_URI, fileUri)
             }
             startActivityForResult(intent, 2)
         }
