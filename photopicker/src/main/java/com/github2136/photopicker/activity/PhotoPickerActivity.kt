@@ -196,7 +196,7 @@ class PhotoPickerActivity : AppCompatActivity() {
                 val bundle = Bundle().apply {
                     putString(ContentResolver.QUERY_ARG_SQL_SELECTION, MediaStore.Images.ImageColumns.SIZE + " > 0 and " + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME + " is not null")
                     putString(ContentResolver.QUERY_ARG_SQL_GROUP_BY, MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME)
-                    putString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER, MediaStore.Files.FileColumns.DATE_TAKEN + " desc")
+                    putString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER, MediaStore.Files.FileColumns.DATE_ADDED + " desc")
                 }
                 cursor = contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, bundle, null)
             } else {
@@ -205,12 +205,12 @@ class PhotoPickerActivity : AppCompatActivity() {
                     arrayOf(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME),
                     MediaStore.Images.ImageColumns.SIZE + " > 0 and " + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME + " is not null",
                     null,
-                    MediaStore.Images.ImageColumns.DATE_TAKEN + " desc"
+                    MediaStore.Images.ImageColumns.DATE_ADDED + " desc"
                 )
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            if (e.message?.startsWith("Permission Denial") == true) {
+            if (e is SecurityException) {
                 AlertDialog.Builder(this)
                     .setTitle("警告")
                     .setMessage("没有外部存储目录读取权限")
@@ -241,7 +241,7 @@ class PhotoPickerActivity : AppCompatActivity() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 val bundle = Bundle().apply {
                     putString(ContentResolver.QUERY_ARG_SQL_SELECTION, MediaStore.Images.ImageColumns.SIZE + " > 0 and " + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME + " is not null" + folder)
-                    putString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER, MediaStore.Files.FileColumns.DATE_TAKEN + " desc")
+                    putString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER, MediaStore.Files.FileColumns.DATE_ADDED + " desc")
                     putInt(ContentResolver.QUERY_ARG_LIMIT, mPhotoPickerAdapter.pageCount)
                     putInt(ContentResolver.QUERY_ARG_OFFSET, mPhotoPickerAdapter.pageIndex * mPhotoPickerAdapter.pageCount)
                 }
@@ -252,7 +252,7 @@ class PhotoPickerActivity : AppCompatActivity() {
                     null,
                     MediaStore.Images.ImageColumns.SIZE + " > 0 and " + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME + " is not null" + folder,
                     null,
-                    MediaStore.Images.ImageColumns.DATE_TAKEN + " desc limit ${mPhotoPickerAdapter.pageIndex * mPhotoPickerAdapter.pageCount} , ${mPhotoPickerAdapter.pageCount} "
+                    MediaStore.Images.ImageColumns.DATE_ADDED + " desc limit ${mPhotoPickerAdapter.pageIndex * mPhotoPickerAdapter.pageCount} , ${mPhotoPickerAdapter.pageCount} "
                 )
             }
         } catch (e: Exception) {
